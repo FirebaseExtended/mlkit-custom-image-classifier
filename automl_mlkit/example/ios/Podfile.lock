@@ -1,0 +1,173 @@
+PODS:
+  - automl_mlkit (0.0.1):
+    - FirebaseCore
+    - FirebaseMLCommon
+    - FirebaseMLVision
+    - FirebaseMLVisionAutoML
+    - Flutter
+  - Firebase/Core (6.0.0):
+    - Firebase/CoreOnly
+    - FirebaseAnalytics (= 6.0.0)
+  - Firebase/CoreOnly (6.0.0):
+    - FirebaseCore (= 6.0.0)
+  - firebase_core (0.0.1):
+    - Firebase/Core
+    - Flutter
+  - FirebaseAnalytics (6.0.0):
+    - FirebaseCore (~> 6.0)
+    - FirebaseInstanceID (~> 4.0)
+    - GoogleAppMeasurement (= 6.0.0)
+    - GoogleUtilities/AppDelegateSwizzler (~> 5.2)
+    - GoogleUtilities/MethodSwizzler (~> 5.2)
+    - GoogleUtilities/Network (~> 5.2)
+    - "GoogleUtilities/NSData+zlib (~> 5.2)"
+    - nanopb (~> 0.3)
+  - FirebaseCore (6.0.0):
+    - GoogleUtilities/Environment (~> 5.2)
+    - GoogleUtilities/Logger (~> 5.2)
+  - FirebaseInstanceID (4.0.0):
+    - FirebaseCore (~> 6.0)
+    - GoogleUtilities/Environment (~> 5.2)
+    - GoogleUtilities/UserDefaults (~> 5.2)
+  - FirebaseMLCommon (0.16.0):
+    - FirebaseCore (~> 6.0)
+    - FirebaseInstanceID (~> 4.0)
+    - GoogleUtilities/UserDefaults (~> 5.3)
+    - GTMSessionFetcher/Core (~> 1.1)
+  - FirebaseMLVision (0.16.0):
+    - FirebaseCore (~> 6.0)
+    - FirebaseMLCommon (~> 0.16)
+    - GoogleAPIClientForREST/Core (~> 1.3)
+    - GoogleAPIClientForREST/Vision (~> 1.3)
+    - GoogleMobileVision/Detector (~> 1.4)
+  - FirebaseMLVisionAutoML (0.16.0):
+    - FirebaseCore (~> 6.0)
+    - FirebaseMLCommon (~> 0.16)
+    - FirebaseMLVision (~> 0.16)
+    - TensorFlowLite (= 1.13.1)
+  - Flutter (1.0.0)
+  - GoogleAPIClientForREST/Core (1.3.8):
+    - GTMSessionFetcher (>= 1.1.7)
+  - GoogleAPIClientForREST/Vision (1.3.8):
+    - GoogleAPIClientForREST/Core
+    - GTMSessionFetcher (>= 1.1.7)
+  - GoogleAppMeasurement (6.0.0):
+    - GoogleUtilities/AppDelegateSwizzler (~> 5.2)
+    - GoogleUtilities/MethodSwizzler (~> 5.2)
+    - GoogleUtilities/Network (~> 5.2)
+    - "GoogleUtilities/NSData+zlib (~> 5.2)"
+    - nanopb (~> 0.3)
+  - GoogleMobileVision/Detector (1.6.0):
+    - GoogleToolboxForMac/Logger (~> 2.1)
+    - "GoogleToolboxForMac/NSData+zlib (~> 2.1)"
+    - GTMSessionFetcher/Core (~> 1.1)
+    - Protobuf (~> 3.1)
+  - GoogleToolboxForMac/Defines (2.2.0)
+  - GoogleToolboxForMac/Logger (2.2.0):
+    - GoogleToolboxForMac/Defines (= 2.2.0)
+  - "GoogleToolboxForMac/NSData+zlib (2.2.0)":
+    - GoogleToolboxForMac/Defines (= 2.2.0)
+  - GoogleUtilities/AppDelegateSwizzler (5.8.0):
+    - GoogleUtilities/Environment
+    - GoogleUtilities/Logger
+    - GoogleUtilities/Network
+  - GoogleUtilities/Environment (5.8.0)
+  - GoogleUtilities/Logger (5.8.0):
+    - GoogleUtilities/Environment
+  - GoogleUtilities/MethodSwizzler (5.8.0):
+    - GoogleUtilities/Logger
+  - GoogleUtilities/Network (5.8.0):
+    - GoogleUtilities/Logger
+    - "GoogleUtilities/NSData+zlib"
+    - GoogleUtilities/Reachability
+  - "GoogleUtilities/NSData+zlib (5.8.0)"
+  - GoogleUtilities/Reachability (5.8.0):
+    - GoogleUtilities/Logger
+  - GoogleUtilities/UserDefaults (5.8.0):
+    - GoogleUtilities/Logger
+  - GTMSessionFetcher (1.2.1):
+    - GTMSessionFetcher/Full (= 1.2.1)
+  - GTMSessionFetcher/Core (1.2.1)
+  - GTMSessionFetcher/Full (1.2.1):
+    - GTMSessionFetcher/Core (= 1.2.1)
+  - image_picker (0.0.1):
+    - Flutter
+  - nanopb (0.3.901):
+    - nanopb/decode (= 0.3.901)
+    - nanopb/encode (= 0.3.901)
+  - nanopb/decode (0.3.901)
+  - nanopb/encode (0.3.901)
+  - path_provider (0.0.1):
+    - Flutter
+  - Protobuf (3.7.0)
+  - TensorFlowLite (1.13.1)
+
+DEPENDENCIES:
+  - automl_mlkit (from `.symlinks/plugins/automl_mlkit/ios`)
+  - Firebase/Core
+  - firebase_core (from `.symlinks/plugins/firebase_core/ios`)
+  - FirebaseMLCommon
+  - FirebaseMLVision
+  - FirebaseMLVisionAutoML
+  - Flutter (from `.symlinks/flutter/ios-release`)
+  - image_picker (from `.symlinks/plugins/image_picker/ios`)
+  - path_provider (from `.symlinks/plugins/path_provider/ios`)
+
+SPEC REPOS:
+  https://github.com/cocoapods/specs.git:
+    - GoogleAPIClientForREST
+    - GoogleMobileVision
+    - GoogleToolboxForMac
+    - GTMSessionFetcher
+    - nanopb
+    - Protobuf
+    - TensorFlowLite
+  sso://cpdc-internal/firebase:
+    - Firebase
+    - FirebaseAnalytics
+    - FirebaseCore
+    - FirebaseInstanceID
+    - FirebaseMLCommon
+    - FirebaseMLVision
+    - FirebaseMLVisionAutoML
+    - GoogleAppMeasurement
+    - GoogleUtilities
+
+EXTERNAL SOURCES:
+  automl_mlkit:
+    :path: ".symlinks/plugins/automl_mlkit/ios"
+  firebase_core:
+    :path: ".symlinks/plugins/firebase_core/ios"
+  Flutter:
+    :path: ".symlinks/flutter/ios-release"
+  image_picker:
+    :path: ".symlinks/plugins/image_picker/ios"
+  path_provider:
+    :path: ".symlinks/plugins/path_provider/ios"
+
+SPEC CHECKSUMS:
+  automl_mlkit: 1ded2ddd04042772f0bc3dcfee5e85ecae0a8da6
+  Firebase: b4af63f09393c07875bdff9db2a47288f5485e07
+  firebase_core: c96aa8b2fcf7f5167d32f22034f502f9304952b8
+  FirebaseAnalytics: 26e558128f0816e8c5af556da94844a0626ddcef
+  FirebaseCore: d3625cd6ed3eb82bc3ef8faf5ecc560d3c2715d1
+  FirebaseInstanceID: 73ca7cb6c60479c382a1e9f45e0caf50c87c759f
+  FirebaseMLCommon: be5022234dfda811c5ebd9e057dfeef824b8d63f
+  FirebaseMLVision: 381154c9919cf900a160421cce3aa9ce5d7a5401
+  FirebaseMLVisionAutoML: 5a3d0f7de84075627bceb7bbc988a581315a069a
+  Flutter: 9d0fac939486c9aba2809b7982dfdbb47a7b0296
+  GoogleAPIClientForREST: 5447a194eae517986cafe6421a5330b80b820591
+  GoogleAppMeasurement: 23b6f01a6ac784eedebfc92e5ceb42c0291f6d14
+  GoogleMobileVision: 31cfb4319fd0c03d80105680abd9eae9da5e3b47
+  GoogleToolboxForMac: ff31605b7d66400dcec09bed5861689aebadda4d
+  GoogleUtilities: 79f2338a97e76d5fdfd813e3955a86c0f855c981
+  GTMSessionFetcher: 32aeca0aa144acea523e1c8e053089dec2cb98ca
+  image_picker: ee00aab0487cedc80a304085219503cc6d0f2e22
+  nanopb: 2901f78ea1b7b4015c860c2fdd1ea2fee1a18d48
+  path_provider: 09407919825bfe3c2deae39453b7a5b44f467873
+  Protobuf: 7a877b7f3e5964e3fce995e2eb323dbc6831bb5a
+  TensorFlowLite: 8b9dc4eb32eac0f8cb660c66bca7604da56dcc5a
+
+PODFILE CHECKSUM: 04cc329978480d05762a85a36a45f052493926b7
+
+COCOAPODS: 1.5.3

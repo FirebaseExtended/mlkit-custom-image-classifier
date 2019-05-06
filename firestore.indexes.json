@@ -1,0 +1,47 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "models",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "parent_key",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "generated_at",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "models",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "dataset_id",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "generated_at",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "operations",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "dataset_id",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "last_updated",
+          "order": "DESCENDING"
+        }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}

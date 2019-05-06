@@ -1,0 +1,12 @@
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /models/{allPaths=**} {
+      allow read; // models can be download via non-logged in users
+      allow write: if false; // models created via functions only
+    }
+    match /datasets/{allPaths=**} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}
+

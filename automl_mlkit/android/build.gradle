@@ -1,0 +1,42 @@
+group 'com.google.automlkit.automl_mlkit'
+version '1.0-SNAPSHOT'
+
+buildscript {
+    repositories {
+        google()
+        jcenter()
+    }
+
+    dependencies {
+        classpath 'com.android.tools.build:gradle:3.2.1'
+    }
+}
+
+rootProject.allprojects {
+    repositories {
+        maven {
+          url '../third_party/m2repository'
+        }
+        google()
+        jcenter()
+    }
+}
+
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion 28
+
+    defaultConfig {
+        minSdkVersion 16
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+    lintOptions {
+        disable 'InvalidPackage'
+    }
+
+    dependencies {
+        api 'com.google.firebase:firebase-ml-vision:20.0.0'
+        api 'com.google.firebase:firebase-ml-vision-automl:16.0.0'
+    }
+}

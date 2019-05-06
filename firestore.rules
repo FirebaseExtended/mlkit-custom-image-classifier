@@ -1,0 +1,50 @@
+service cloud.firestore {
+  match /databases/{database}/documents {
+  
+  function isSignedIn() {
+    return request.auth != null;
+  }
+      
+   match /datasets/{datasetId} {
+      function isOwner() {
+         return isSignedIn() && request.auth.uid == resource.data.ownerId;
+      }
+      
+      function isPublic() {
+         return resource.data.isPublic;
+      }
+   
+      allow read: if isPublic() || isSignedIn();
+      allow update: if isOwner();
+      allow create: if isSignedIn() && request.auth.uid == request.resource.data.ownerId;
+      allow delete: if isOwner();
+    }
+    
+   match /labels/{labelId} {
+   		allow read; 
+      allow write: if isSignedIn();
+   } 
+   
+	 match /operations/{operationId} {
+   		allow read;
+      allow write: if isSignedIn();
+   } 
+   
+   match /models/{modelId} {
+   		allow read;
+   }
+   
+   match /images/{imageId} {
+      allow read, write: if isSignedIn();
+   }
+   
+   match /users/{userId} {
+       allow read;
+       allow write: if isSignedIn();
+   }
+   
+   match /collaborators/{collaboratorId} {
+      allow read, write: if isSignedIn();
+   }
+  }
+}

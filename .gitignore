@@ -1,0 +1,11 @@
+.DS_Store
+node_modules
+vendor
+.idea
+.runtimeconfig.json
+service-account-key.json
+google-services.json
+GoogleService-Info.plist
+.firebaserc
+firebase_auth/example/ios/Pods
+build/
