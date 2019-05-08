@@ -40,7 +40,7 @@ If you want a custom image classifier, but don’t have the right data or the kn
 1. Clone this repo locally
 
       ```
-      git clone https://github.com/firebase/custom-image-classifier
+      git clone https://github.com/firebase/mlkit-custom-image-classifier
       ```
 
 1. Create a new Firebase project from the [console](https://console.firebase.google.com/).
