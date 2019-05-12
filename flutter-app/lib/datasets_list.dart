@@ -289,12 +289,15 @@ class DatasetActions extends StatelessWidget {
         .orderBy("generated_at", descending: true)
         .getDocuments();
 
+    // reference to the latest model
     final modelInfo = snapshot.documents.first;
 
     final filesToDownload = {
       modelInfo["model"]: "model.tflite",
       modelInfo["label"]: "dict.txt",
     };
+
+    final int generatedAt = modelInfo["generated_at"];
 
     // create a datasets dir in app's data folder
     final Directory appDocDir = await getTemporaryDirectory();
@@ -310,6 +313,20 @@ class DatasetActions extends StatelessWidget {
     final File manifestJsonFile = File('${modelDir.path}/manifest.json');
     if (!manifestJsonFile.existsSync()) {
       manifestJsonFile.writeAsString(jsonEncode(MANIFEST_JSON_CONTENTS));
+    }
+    // stores the timestamp at which the latest model was generated
+    final File generatedAtFile = File('${modelDir.path}/generated_at');
+    if (!generatedAtFile.existsSync()) {
+      generatedAtFile.writeAsStringSync(modelInfo["generated_at"].toString());
+    } else {
+      // if the timestamp file exists, compare the timestamps to decide if the
+      // model should be downloaded again.
+      final storedTimestamp = int.parse(generatedAtFile.readAsStringSync());
+      if (storedTimestamp >= generatedAt) {
+        // newer (or same) model is stored, no need to download it again.
+        print("[DatasetsList] Using cached model");
+        return Future.value();
+      }
     }
 
     // TODO: This will be replaced by the ML Kit Model Publishing API when it becomes available.
