@@ -45,22 +45,22 @@ class ListLabelSamples extends StatelessWidget {
           child: new Hero(
             tag: AppBar,
             child: new AppBar(
-                leading: const BackButton(),
-                title: new Text('${labelName.toUpperCase()}'),
-                actions: !isOwner
-                    ? [Container()]
-                    : [
-                        IconButton(
-                          icon: Icon(Icons.delete_forever),
-                          onPressed: () {
-                            Firestore.instance
-                                .collection('labels')
-                                .document(labelKey)
-                                .delete();
-                            Navigator.pop(context);
-                          },
-                        ),
-                      ]),
+              leading: const BackButton(),
+              title: new Text('${labelName.toUpperCase()}'),
+              actions: [
+                if (isOwner)
+                  IconButton(
+                    icon: Icon(Icons.delete_forever),
+                    onPressed: () {
+                      Firestore.instance
+                          .collection('labels')
+                          .document(labelKey)
+                          .delete();
+                      Navigator.pop(context);
+                    },
+                  ),
+              ],
+            ),
           ),
           preferredSize: new AppBar().preferredSize,
         ),
@@ -227,8 +227,8 @@ class ImageViewerDialog extends StatelessWidget {
       backgroundColor: Colors.black,
       contentPadding: EdgeInsets.all(0),
       children: <Widget>[
-        new Container(
-          decoration: BoxDecoration(color: Colors.black),
+        Container(
+          decoration: const BoxDecoration(color: Colors.black),
           child: imageUrl.isNotEmpty
               ? FadeInImage.memoryNetwork(
                   fadeInDuration: const Duration(milliseconds: 200),
@@ -236,7 +236,7 @@ class ImageViewerDialog extends StatelessWidget {
                   image: imageUrl,
                   fit: BoxFit.fitWidth,
                 )
-              : Icon(Icons.image, size: 200, color: Colors.black12),
+              : const Icon(Icons.image, size: 200, color: Colors.black12),
         ),
       ],
     );

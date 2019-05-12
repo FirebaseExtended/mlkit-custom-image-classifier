@@ -112,18 +112,18 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: new AppBar(
         title: new Text("Datasets"),
         actions: <Widget>[
-          model.isLoggedIn()
-              ? Container()
-              : IconButton(
-                  onPressed: () {
-                    model
-                        .beginSignIn()
-                        .then((user) => model.setLoggedInUser(user))
-                        .catchError((e) => print(e));
-                  },
-                  icon: Icon(
-                    Icons.person_outline,
-                  )),
+          if (!model.isLoggedIn())
+            IconButton(
+              onPressed: () {
+                model
+                    .beginSignIn()
+                    .then((user) => model.setLoggedInUser(user))
+                    .catchError((e) => print(e));
+              },
+              icon: Icon(
+                Icons.person_outline,
+              ),
+            ),
           model.isLoggedIn()
               ? PopupMenuButton<MainAction>(
                   onSelected: (MainAction action) {

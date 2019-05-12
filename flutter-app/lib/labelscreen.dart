@@ -293,7 +293,7 @@ class _ListLabelsScreenState extends State<ListLabelsScreen> {
                         builder: (BuildContext context) => LabelsHelpDialog());
                   },
                 ),
-                isOwner ? buildPopupMenu() : Container(),
+                if (isOwner) buildPopupMenu(),
               ],
             ),
           ),
@@ -495,22 +495,20 @@ class LabelEntry extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
                   new Text(labelName),
-                  _canEdit(model)
-                      ? new Row(
-                          children: [
-                            Chip(
-                              avatar: CircleAvatar(
-                                backgroundColor: Colors.grey.shade800,
-                                child: Text('$totalImages'),
-                              ),
-                              label:
-                                  Text(totalImages == 1 ? 'image' : 'images'),
-                              backgroundColor: Colors.white24,
-                            ),
-                            const Icon(Icons.navigate_next),
-                          ],
-                        )
-                      : Container(),
+                  if (_canEdit(model))
+                    new Row(
+                      children: [
+                        Chip(
+                          avatar: CircleAvatar(
+                            backgroundColor: Colors.grey.shade800,
+                            child: Text('$totalImages'),
+                          ),
+                          label: Text(totalImages == 1 ? 'image' : 'images'),
+                          backgroundColor: Colors.white24,
+                        ),
+                        const Icon(Icons.navigate_next),
+                      ],
+                    ),
                 ],
               )),
         ),
