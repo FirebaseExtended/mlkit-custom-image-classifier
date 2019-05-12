@@ -347,19 +347,6 @@ class _ListLabelsScreenState extends State<ListLabelsScreen> {
                 .map((document) => document["total_images"] as int)
                 .any((imageCount) => imageCount < 10);
 
-            final List<Widget> messages = [
-              new OperationProgress(dataset: widget.dataset)
-            ];
-
-            // If there are less than 10 images in the dataset, show a warning
-            if (invalidLabels) {
-              messages.add(new DismissibleMessageWidget(
-                msg:
-                    "At least 10 images per label are required to start training",
-                color: Colors.red[400],
-              ));
-            }
-
             final labelListView = new ListView(
                 children: snapshot.data.documents
                     .map((document) => new Container(
@@ -374,6 +361,17 @@ class _ListLabelsScreenState extends State<ListLabelsScreen> {
                           totalImages: document['total_images'],
                         )))
                     .toList());
+
+            final List<Widget> messages = [
+              new OperationProgress(dataset: widget.dataset),
+              if (invalidLabels)
+                // If there are less than 10 images in the dataset, show a warning
+                new DismissibleMessageWidget(
+                  msg:
+                      "At least 10 images per label are required to start training",
+                  color: Colors.red[400],
+                ),
+            ];
 
             if (isOwner || isCollaborator) {
               return Column(

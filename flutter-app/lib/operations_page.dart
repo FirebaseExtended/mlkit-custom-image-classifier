@@ -68,6 +68,11 @@ class OperationsList extends StatelessWidget {
     );
   }
 
+  ListTile header(String text) => ListTile(
+      key: Key(text),
+      title: Text(text.toUpperCase(),
+          style: TextStyle(fontSize: 16, color: Colors.black54)));
+
   @override
   Widget build(BuildContext context) {
     return new StreamBuilder(
@@ -97,24 +102,14 @@ class OperationsList extends StatelessWidget {
                   .where((document) => document["done"])
                   .map(_toListTile);
 
-              final List<Widget> listTiles = [];
-              if (pendingOps.isNotEmpty) {
-                listTiles.add(ListTile(
-                  key: Key("in-progress"),
-                  title: Text("IN PROGRESS",
-                      style: TextStyle(fontSize: 16, color: Colors.black54)),
-                ));
-                listTiles.addAll(pendingOps);
-              }
-              if (completedOps.isNotEmpty) {
-                listTiles.add(ListTile(
-                  key: Key("completed"),
-                  title: Text("COMPLETED",
-                      style: TextStyle(fontSize: 16, color: Colors.black54)),
-                ));
-                listTiles.addAll(completedOps);
-              }
-              return ListView(children: listTiles);
+              return ListView(
+                children: [
+                  if (pendingOps.isNotEmpty) header("in progress"),
+                  if (pendingOps.isNotEmpty) ...pendingOps,
+                  if (completedOps.isNotEmpty) header("completed"),
+                  if (completedOps.isNotEmpty) ...completedOps,
+                ],
+              );
           }
         });
   }
