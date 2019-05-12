@@ -194,7 +194,7 @@ class DatasetActions extends StatelessWidget {
         }
 
         return Padding(
-          padding: const EdgeInsets.only(left: 16.0),
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
@@ -238,16 +238,21 @@ class DatasetActions extends StatelessWidget {
               ),
               new Row(
                 children: <Widget>[
-                  modelExists
-                      ? IconButton(
-                          color: Colors.blueGrey,
-                          icon: Icon(Icons.camera_alt),
-                          tooltip: 'Run inference on an image',
-                          onPressed: () async {
-                            await _beginModelInferenceAsync(context);
-                          },
-                        )
-                      : Container(),
+                  if (modelExists)
+                    Container(
+                      child: IconButton(
+                        color: Colors.blueGrey,
+                        icon: Icon(Icons.center_focus_weak),
+                        tooltip: 'Run inference on an image',
+                        onPressed: () async {
+                          await _beginModelInferenceAsync(context);
+                        },
+                      ),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.black12, width: 1.0),
+                        shape: BoxShape.circle,
+                      ),
+                    )
                 ],
               )
             ],
