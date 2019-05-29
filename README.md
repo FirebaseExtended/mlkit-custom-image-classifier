@@ -74,7 +74,7 @@ $ firebase functions:config:set sendgrid.key="<API_KEY>"
 5. Next, set the `FROM_EMAIL` constant in [this](functions/src/constants.ts) file to be email ID from which emails will be sent.
 6. Follow that up with setting the `APP_NAME` that you've decided for your app.
 7. Go to the Firebase Console, select the gear image > **project settings** > **Service Accounts** and click **Generate New Private Key** to download a Service Account Key JSON document.
-8. Add the JSON service account credentials file to the **Functions** directory as **functions/lib/service_account_key.json**.
+8. Add the JSON service account credentials file to the **Functions** directory as **functions/lib/service-account-key.json**.
 9. Now run, `npm run deploy` to deploy the functions, firestore & storage configuration.
 
 **Flutter app setup**
