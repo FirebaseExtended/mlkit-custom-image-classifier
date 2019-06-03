@@ -46,7 +46,7 @@ See a [**live demo**](https://youtu.be/QwHD36bhXZA?t=1944) of the app presented 
       ```
 
 1. Create a new Firebase project from the [console](https://console.firebase.google.com/).
-1. Take a note of the **Project ID** from [Settings page](https://console.firebase.google.com/project/_/settings/general/) as we'll use it later.
+1. Take a note of the **Project ID** from [Settings page](https://console.firebase.google.com/project/_/settings/general/) as we'll use it later. Also add a support email - this is required for sign-in to work.
 1. Follow the [steps](https://firebase.google.com/docs/flutter/setup) to add Firebase to the [Flutter app](flutter-app) in this repo. For the Android version, use `com.example.classifier` as bundle ID and for iOS use `com.example.imageclassifier`. If you want to provide your own bundleIDs, remember to replace the pre-filled bundleIDs from the code in `flutter/`
     > NOTE: For the Android app, make sure to add a *Debug signing certificate SHA-1* for Google Sign-in to work.
 
