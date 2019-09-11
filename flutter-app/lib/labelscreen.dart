@@ -235,38 +235,38 @@ class _ListLabelsScreenState extends State<ListLabelsScreen> {
     return PopupMenuButton<Actions>(
       onSelected: onPopupMenuItemClicked,
       itemBuilder: (BuildContext context) => <PopupMenuEntry<Actions>>[
-            const PopupMenuItem(
-              child: Text('Train model'),
-              value: Actions.trainModel,
-            ),
-            const PopupMenuItem(
-              child: Text('View Collaborators'),
-              value: Actions.viewCollaborators,
-            ),
-            const PopupMenuItem(
-              child: Text('View Past Operations'),
-              value: Actions.viewPastOperations,
-            ),
-            PopupMenuItem(
-              child: widget.dataset.isPublic
-                  ? Text('Make private')
-                  : Text('Make public'),
-              value: Actions.changeVisiblity,
-            ),
-            const PopupMenuItem(
-              child: Text('Export to Firebase'),
-              value: Actions.exportToFirebase,
-            ),
-            const PopupMenuItem(
-              child: Text('Show bucket path'),
-              value: Actions.copyGCSPath,
-            ),
-            const PopupMenuDivider(),
-            const PopupMenuItem(
-              child: Text('Delete Dataset'),
-              value: Actions.deleteDataset,
-            ),
-          ],
+        const PopupMenuItem(
+          child: Text('Train model'),
+          value: Actions.trainModel,
+        ),
+        const PopupMenuItem(
+          child: Text('View Collaborators'),
+          value: Actions.viewCollaborators,
+        ),
+        const PopupMenuItem(
+          child: Text('View Past Operations'),
+          value: Actions.viewPastOperations,
+        ),
+        PopupMenuItem(
+          child: widget.dataset.isPublic
+              ? Text('Make private')
+              : Text('Make public'),
+          value: Actions.changeVisiblity,
+        ),
+        const PopupMenuItem(
+          child: Text('Export to Firebase'),
+          value: Actions.exportToFirebase,
+        ),
+        const PopupMenuItem(
+          child: Text('Show bucket path'),
+          value: Actions.copyGCSPath,
+        ),
+        const PopupMenuDivider(),
+        const PopupMenuItem(
+          child: Text('Delete Dataset'),
+          value: Actions.deleteDataset,
+        ),
+      ],
     );
   }
 
@@ -482,10 +482,10 @@ class LabelEntry extends StatelessWidget {
                         context,
                         MaterialPageRoute(
                           builder: (context) => new ListLabelSamples(
-                                dataset,
-                                labelKey,
-                                labelName,
-                              ),
+                            dataset,
+                            labelKey,
+                            labelName,
+                          ),
                         ),
                       );
                     }
@@ -498,13 +498,24 @@ class LabelEntry extends StatelessWidget {
                   if (_canEdit(model))
                     new Row(
                       children: [
-                        Chip(
-                          avatar: CircleAvatar(
-                            backgroundColor: Colors.grey.shade800,
-                            child: Text('$totalImages'),
+                        Container(
+                          decoration: new BoxDecoration(
+                            color: Colors.grey.shade300,
+                            borderRadius: new BorderRadius.circular(20.0),
                           ),
-                          label: Text(totalImages == 1 ? 'image' : 'images'),
-                          backgroundColor: Colors.white24,
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(
+                                vertical: 4, horizontal: 12),
+                            child: Text(
+                              totalImages == 1
+                                  ? 'One image'
+                                  : '$totalImages images',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
                         ),
                         const Icon(Icons.navigate_next),
                       ],
