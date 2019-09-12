@@ -70,25 +70,25 @@ class DatasetsList extends StatelessWidget {
                 children: filteredDatasets
                     .map(
                       (dataset) => new Container(
-                        decoration: new BoxDecoration(
-                          border: Border(
-                              bottom: BorderSide(color: Colors.grey[300])),
-                        ),
-                        height: 80,
-                        child: InkWell(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    new ListLabelsScreen(dataset),
-                              ),
-                            );
-                          },
-                          child:
-                              new DatasetActions(dataset, model, scaffoldKey),
-                        ),
-                      ),
+                            decoration: new BoxDecoration(
+                              border: Border(
+                                  bottom: BorderSide(color: Colors.grey[300])),
+                            ),
+                            height: 100,
+                            child: InkWell(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        new ListLabelsScreen(dataset),
+                                  ),
+                                );
+                              },
+                              child: new DatasetActions(
+                                  dataset, model, scaffoldKey),
+                            ),
+                          ),
                     )
                     .toList());
         }
@@ -234,7 +234,7 @@ class DatasetActions extends StatelessWidget {
                       ],
                     ),
                     Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 4.0),
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
                       child: Row(
                         children: <Widget>[
                           new Text(

@@ -235,38 +235,38 @@ class _ListLabelsScreenState extends State<ListLabelsScreen> {
     return PopupMenuButton<Actions>(
       onSelected: onPopupMenuItemClicked,
       itemBuilder: (BuildContext context) => <PopupMenuEntry<Actions>>[
-        const PopupMenuItem(
-          child: Text('Train model'),
-          value: Actions.trainModel,
-        ),
-        const PopupMenuItem(
-          child: Text('View Collaborators'),
-          value: Actions.viewCollaborators,
-        ),
-        const PopupMenuItem(
-          child: Text('View Past Operations'),
-          value: Actions.viewPastOperations,
-        ),
-        PopupMenuItem(
-          child: widget.dataset.isPublic
-              ? Text('Make private')
-              : Text('Make public'),
-          value: Actions.changeVisiblity,
-        ),
-        const PopupMenuItem(
-          child: Text('Export to Firebase'),
-          value: Actions.exportToFirebase,
-        ),
-        const PopupMenuItem(
-          child: Text('Show bucket path'),
-          value: Actions.copyGCSPath,
-        ),
-        const PopupMenuDivider(),
-        const PopupMenuItem(
-          child: Text('Delete Dataset'),
-          value: Actions.deleteDataset,
-        ),
-      ],
+            const PopupMenuItem(
+              child: Text('Train model'),
+              value: Actions.trainModel,
+            ),
+            const PopupMenuItem(
+              child: Text('View Collaborators'),
+              value: Actions.viewCollaborators,
+            ),
+            const PopupMenuItem(
+              child: Text('View Past Operations'),
+              value: Actions.viewPastOperations,
+            ),
+            PopupMenuItem(
+              child: widget.dataset.isPublic
+                  ? Text('Make private')
+                  : Text('Make public'),
+              value: Actions.changeVisiblity,
+            ),
+            const PopupMenuItem(
+              child: Text('Export to Firebase'),
+              value: Actions.exportToFirebase,
+            ),
+            const PopupMenuItem(
+              child: Text('Show bucket path'),
+              value: Actions.copyGCSPath,
+            ),
+            const PopupMenuDivider(),
+            const PopupMenuItem(
+              child: Text('Delete Dataset'),
+              value: Actions.deleteDataset,
+            ),
+          ],
     );
   }
 
@@ -482,10 +482,10 @@ class LabelEntry extends StatelessWidget {
                         context,
                         MaterialPageRoute(
                           builder: (context) => new ListLabelSamples(
-                            dataset,
-                            labelKey,
-                            labelName,
-                          ),
+                                dataset,
+                                labelKey,
+                                labelName,
+                              ),
                         ),
                       );
                     }
@@ -624,6 +624,8 @@ class _TrainModelPricingDialogState extends State<TrainModelPricingDialog> {
             child: Slider(
                 value: trainingBudget.toDouble(),
                 max: 10.0,
+                activeColor: Colors.deepPurple,
+                inactiveColor: Colors.grey[200],
                 min: 1.0,
                 divisions: 10,
                 onChanged: (v) {
@@ -648,7 +650,7 @@ class _TrainModelPricingDialogState extends State<TrainModelPricingDialog> {
                 children: [
                   TextSpan(
                     text: " Firebase pricing page ",
-                    style: TextStyle(color: Colors.blueAccent),
+                    style: TextStyle(color: Colors.deepPurple),
                   ),
                   TextSpan(text: "for details")
                 ],
@@ -669,6 +671,7 @@ class _TrainModelPricingDialogState extends State<TrainModelPricingDialog> {
           child: const Text("CANCEL"),
         ),
         new RaisedButton(
+          color: Colors.deepPurple,
           onPressed: () {
             Navigator.pop(context, trainingBudget);
           },

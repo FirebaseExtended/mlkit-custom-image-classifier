@@ -86,7 +86,6 @@ class _CameraState extends State<Camera> {
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
-        backgroundColor: Theme.of(context).accentColor,
         title: Text('Capture sample for ${widget.label}'),
       ),
       body: Container(
@@ -409,7 +408,6 @@ class _CameraControlWidgetState extends State<CameraControlWidget> {
   Widget build(BuildContext context) {
     final recordVideoButton = IconButton(
       icon: Icon(Icons.videocam),
-      color: Theme.of(context).accentColor,
       iconSize: 40,
       onPressed: () {
         widget.onRecordingStart();
@@ -423,7 +421,6 @@ class _CameraControlWidgetState extends State<CameraControlWidget> {
     final takePictureButton = IconButton(
       icon: Icon(Icons.camera_alt),
       iconSize: 40,
-      color: Theme.of(context).accentColor,
       onPressed: widget.onPictureTaken,
     );
 
