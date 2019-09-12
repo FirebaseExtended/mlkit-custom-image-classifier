@@ -473,7 +473,7 @@ class VideoProcessingDialog extends StatelessWidget {
       title: Text('Processing Video'),
       children: <Widget>[
         Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(8.0),
           child: Text(
             "Your video is being processed and can be viewed in the samples page shortly",
           ),

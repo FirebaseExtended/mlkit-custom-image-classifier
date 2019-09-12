@@ -118,8 +118,20 @@ class DatasetActions extends StatelessWidget {
   Future _beginModelInferenceAsync(BuildContext context) async {
     _showSnackBar("Fetching latest model info");
     final autoMlStorage = InheritedStorage.of(context).autoMlStorage;
-    await _downloadModel(dataset, autoMlStorage);
-    await loadModel(dataset.automlId);
+    try {
+      await _downloadModel(dataset, autoMlStorage);
+      print("Successfully downloaded the model");
+    } catch (e) {
+      _showSnackBar("Error downloading model");
+      print(e);
+    }
+    try {
+      await loadModel(dataset.automlId);
+      print("Successfully loaded the model");
+    } catch (e) {
+      _showSnackBar("Error loading the model");
+      print(e);
+    }
     await _getImageAndRunInferenceAsync(context);
   }
 
