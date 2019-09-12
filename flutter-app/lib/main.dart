@@ -60,7 +60,8 @@ class MyApp extends StatelessWidget {
         child: new MaterialApp(
           title: 'Custom Image Classifier',
           theme: new ThemeData(
-            primarySwatch: Colors.deepPurple,
+            primaryColor: Colors.white,
+            accentColor: Colors.deepPurple,
             dividerColor: Colors.black12,
           ),
           initialRoute: MyHomePage.routeName,
@@ -138,28 +139,28 @@ class _MyHomePageState extends State<MyHomePage> {
                   },
                   itemBuilder: (BuildContext context) =>
                       <PopupMenuItem<MainAction>>[
-                        PopupMenuItem<MainAction>(
-                          child: Text.rich(
+                    PopupMenuItem<MainAction>(
+                      child: Text.rich(
+                        TextSpan(
+                          text: 'Logout',
+                          children: [
                             TextSpan(
-                              text: 'Logout',
-                              children: [
-                                TextSpan(
-                                  text: " (${model.user.displayName})",
-                                  style: TextStyle(
-                                    color: Colors.black38,
-                                    fontStyle: FontStyle.italic,
-                                  ),
-                                )
-                              ],
-                            ),
-                          ),
-                          value: MainAction.logout,
+                              text: " (${model.user.displayName})",
+                              style: TextStyle(
+                                color: Colors.black38,
+                                fontStyle: FontStyle.italic,
+                              ),
+                            )
+                          ],
                         ),
-                        const PopupMenuItem<MainAction>(
-                          child: Text('View Tutorial'),
-                          value: MainAction.viewTutorial,
-                        )
-                      ],
+                      ),
+                      value: MainAction.logout,
+                    ),
+                    const PopupMenuItem<MainAction>(
+                      child: Text('View Tutorial'),
+                      value: MainAction.viewTutorial,
+                    )
+                  ],
                 )
               : Container()
         ],

@@ -70,25 +70,25 @@ class DatasetsList extends StatelessWidget {
                 children: filteredDatasets
                     .map(
                       (dataset) => new Container(
-                            decoration: new BoxDecoration(
-                              border: Border(
-                                  bottom: BorderSide(color: Colors.grey[300])),
-                            ),
-                            height: 80,
-                            child: InkWell(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        new ListLabelsScreen(dataset),
-                                  ),
-                                );
-                              },
-                              child: new DatasetActions(
-                                  dataset, model, scaffoldKey),
-                            ),
-                          ),
+                        decoration: new BoxDecoration(
+                          border: Border(
+                              bottom: BorderSide(color: Colors.grey[300])),
+                        ),
+                        height: 80,
+                        child: InkWell(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    new ListLabelsScreen(dataset),
+                              ),
+                            );
+                          },
+                          child:
+                              new DatasetActions(dataset, model, scaffoldKey),
+                        ),
+                      ),
                     )
                     .toList());
         }
@@ -158,6 +158,18 @@ class DatasetActions extends StatelessWidget {
     }
   }
 
+  String sharingLabel(Dataset dataset) {
+    if (dataset.isOwner(model)) {
+      return "Private";
+    }
+    if (dataset.isCollaborator(model)) {
+      return "Shared";
+    }
+    if (dataset.isPublic) {
+      return "Public";
+    }
+  }
+
   Color getColor(Dataset dataset) {
     if (dataset.isOwner(model)) {
       return Colors.teal;
@@ -203,26 +215,42 @@ class DatasetActions extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
-                    new Text(
-                      dataset.name.toUpperCase(),
-                      style: TextStyle(
-                        fontSize: 14,
-                        letterSpacing: 1.1,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    Row(
+                      children: <Widget>[
+                        Icon(
+                          getIcon(dataset),
+                          size: 14,
+                          color: Colors.black54,
+                        ),
+                        SizedBox(width: 4),
+                        new Text(
+                          dataset.name.toUpperCase(),
+                          style: TextStyle(
+                            fontSize: 14,
+                            letterSpacing: 1.4,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
                     ),
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 4.0),
                       child: Row(
                         children: <Widget>[
-                          Icon(
-                            getIcon(dataset),
-                            size: 16,
-                            color: Colors.black54,
-                          ),
-                          SizedBox(width: 4),
                           new Text(
                             dataset.description,
+                            style: TextStyle(color: Colors.black54),
+                          ),
+                          new Text(
+                            '\u00B7',
+                            style: TextStyle(
+                              color: Colors.black54,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20,
+                            ),
+                          ),
+                          new Text(
+                            sharingLabel(dataset),
                             style: TextStyle(color: Colors.black54),
                           ),
                         ],
@@ -241,7 +269,7 @@ class DatasetActions extends StatelessWidget {
                   if (modelExists)
                     Container(
                       child: IconButton(
-                        color: Colors.blueGrey,
+                        color: Colors.deepPurple,
                         icon: Icon(Icons.center_focus_weak),
                         tooltip: 'Run inference on an image',
                         onPressed: () async {
@@ -463,13 +491,36 @@ class ModelStatusInfo extends StatelessWidget {
             }
           }
 
-          return new Row(
+          return Row(
             children: <Widget>[
-              Icon(modelIcon, size: 16),
-              SizedBox(width: 4),
-              new Text(
-                statusText,
-                style: TextStyle(color: Colors.black54),
+              Container(
+                decoration: new BoxDecoration(
+                  color:
+                      doesModelExist ? Color(0x80B2DFDB) : Colors.grey.shade300,
+                  borderRadius: new BorderRadius.circular(4.0),
+                ),
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 2.0, horizontal: 4),
+                  child: new Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: <Widget>[
+                      Icon(
+                        modelIcon,
+                        size: 16,
+                        color: doesModelExist ? Colors.teal : Colors.black54,
+                      ),
+                      SizedBox(width: 4),
+                      new Text(
+                        statusText,
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color:
+                                doesModelExist ? Colors.teal : Colors.black54),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ],
           );
