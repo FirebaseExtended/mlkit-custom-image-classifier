@@ -129,10 +129,6 @@ device you are using you must set the `URL Schemes` to the `REVERSE_CLIENT_ID` f
 
   - When testing you can add test phone numbers and verification codes to the Firebase console.
 
-## Example
-
-See the [example application](https://github.com/flutter/plugins/tree/master/packages/firebase_auth/example) source
-for a complete sample app using the Firebase authentication.
 
 ## Issues and feedback
 
