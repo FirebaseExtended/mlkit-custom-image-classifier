@@ -128,11 +128,11 @@ device you are using you must set the `URL Schemes` to the `REVERSE_CLIENT_ID` f
 1. Enable Phone as a Sign-In method in the [Firebase console](https://console.firebase.google.com/u/0/project/_/authentication/providers)
 
   - When testing you can add test phone numbers and verification codes to the Firebase console.
-
+  
 ## Example
 
-See the [example application](https://github.com/flutter/plugins/tree/master/packages/firebase_auth/example) source
-for a complete sample app using the Firebase authentication.
+See the [example application](https://github.com/firebase/mlkit-custom-image-classifier/tree/master/flutter-app) source
+for a complete sample app using the Firebase authentication for Google Sign-In.
 
 ## Issues and feedback
 
