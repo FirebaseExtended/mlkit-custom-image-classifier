@@ -8,6 +8,12 @@ If you want a custom image classifier, but don’t have the right data or the kn
 
 See a [**live demo**](https://youtu.be/QwHD36bhXZA?t=1944) of the app presented at Google I/O '19.
 
+## Status
+
+![Status: Archived](https://img.shields.io/badge/Status-Archived-red)
+
+This sample is no longer actively maintained and is left here for reference only.
+
 ## Full list of features
 - Create datasets and corresponding labels (e.g. flowers -> rose, tulip, sunflower, etc).
 - Collect images for a dataset via the phone’s camera. Images can be collected as individual pictures or short videos that are converted to multiple individual images.
