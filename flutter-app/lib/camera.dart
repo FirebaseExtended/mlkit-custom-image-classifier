@@ -227,7 +227,7 @@ class _CameraState extends State<Camera> {
         ),
       );
 
-      final snapshot = await uploadTask.onComplete;
+      final snapshot = await uploadTask.lastSnapshot;
       final downloadUrl = await snapshot.ref.getDownloadURL();
 
       Firestore.instance.collection('images').add({
@@ -239,7 +239,7 @@ class _CameraState extends State<Camera> {
         'uploadPath':
             'datasets/${widget.dataset.name}/${widget.label}/$filename',
         'gcsURI': downloadUrl,
-        'uploader': widget.userModel.user.email,
+        'uploader': widget.userModel.user.user.email,
       });
 
       final labelRef =
@@ -248,9 +248,8 @@ class _CameraState extends State<Camera> {
       // increment count for the label
       await Firestore.instance.runTransaction((Transaction tx) async {
         DocumentSnapshot snapshot = await tx.get(labelRef);
-        await tx.update(labelRef, <String, dynamic>{
-          'total_images': snapshot.data['total_images'] + 1
-        });
+        await tx.update(labelRef,
+            <String, dynamic>{'total_images': snapshot['total_images'] + 1});
       });
     }
   }
@@ -289,7 +288,7 @@ class _CameraState extends State<Camera> {
             'activity': 'videoUpload',
             'parent_key': widget.labelKey,
             'dataset_parent_key': widget.dataset.id,
-            'uploader': widget.userModel.user.email,
+            'uploader': widget.userModel.user.user.email,
           },
         ),
       );

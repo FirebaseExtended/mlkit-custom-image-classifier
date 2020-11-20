@@ -82,12 +82,12 @@ class Dataset {
   }
 
   bool isOwner(UserModel userModel) {
-    return userModel.isLoggedIn() && ownerId == userModel.user.uid;
+    return userModel.isLoggedIn() && ownerId == userModel.user.user.uid;
   }
 
   bool isCollaborator(UserModel userModel) {
     return userModel.isLoggedIn() &&
-        collaborators.contains(userModel.user.email);
+        collaborators.contains(userModel.user.user.email);
   }
 }
 
@@ -151,6 +151,6 @@ class Sample {
   }
 
   bool isOwner(UserModel userModel) {
-    return userModel.user.email == this.ownerEmail;
+    return userModel.user.user.email == this.ownerEmail;
   }
 }

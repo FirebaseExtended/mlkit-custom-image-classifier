@@ -101,7 +101,7 @@ class _AddDatasetFormState extends State<AddDatasetForm> {
       'automlId': datasetId,
       'name': title,
       'description': description,
-      'ownerId': widget.userModel.user.uid,
+      'ownerId': widget.userModel.user.user.uid,
       'isPublic': setPublic,
       'collaborators': [],
     });
@@ -253,11 +253,11 @@ class _AddLabelFormState extends State<AddLabelForm> {
     disableSubmit = widget.value.isEmpty;
   }
 
-  // adds a label to a firestore document (if provided)
-  void addLabel(String text, String parentKey, [String document]) {
+  // adds a label to a firestore doc (if provided)
+  void addLabel(String text, String parentKey, [String doc]) {
     Firestore.instance
         .collection('labels')
-        .document(document)
+        .document(doc)
         .setData({'name': text, 'parent_key': parentKey, 'total_images': 0});
   }
 

@@ -126,7 +126,7 @@ class _ListLabelsScreenState extends State<ListLabelsScreen> {
       await Firestore.instance
           .collection('datasets')
           .document(widget.dataset.id)
-          .setData({"token": token}, merge: true);
+          .setData({"token": token});
     } catch (err) {
       showSnackBar("Error while starting training");
       print("Error $err");
@@ -205,8 +205,7 @@ class _ListLabelsScreenState extends State<ListLabelsScreen> {
         Firestore.instance
             .collection('datasets')
             .document(widget.dataset.id)
-            .setData({"isPublic": !widget.dataset.isPublic},
-                merge: true).whenComplete(() {
+            .setData({"isPublic": !widget.dataset.isPublic}).whenComplete(() {
           Navigator.pop(context);
         });
         return;
@@ -235,38 +234,38 @@ class _ListLabelsScreenState extends State<ListLabelsScreen> {
     return PopupMenuButton<Actions>(
       onSelected: onPopupMenuItemClicked,
       itemBuilder: (BuildContext context) => <PopupMenuEntry<Actions>>[
-            const PopupMenuItem(
-              child: Text('Train model'),
-              value: Actions.trainModel,
-            ),
-            const PopupMenuItem(
-              child: Text('View Collaborators'),
-              value: Actions.viewCollaborators,
-            ),
-            const PopupMenuItem(
-              child: Text('View Past Operations'),
-              value: Actions.viewPastOperations,
-            ),
-            PopupMenuItem(
-              child: widget.dataset.isPublic
-                  ? Text('Make private')
-                  : Text('Make public'),
-              value: Actions.changeVisiblity,
-            ),
-            const PopupMenuItem(
-              child: Text('Export to Firebase'),
-              value: Actions.exportToFirebase,
-            ),
-            const PopupMenuItem(
-              child: Text('Show bucket path'),
-              value: Actions.copyGCSPath,
-            ),
-            const PopupMenuDivider(),
-            const PopupMenuItem(
-              child: Text('Delete Dataset'),
-              value: Actions.deleteDataset,
-            ),
-          ],
+        const PopupMenuItem(
+          child: Text('Train model'),
+          value: Actions.trainModel,
+        ),
+        const PopupMenuItem(
+          child: Text('View Collaborators'),
+          value: Actions.viewCollaborators,
+        ),
+        const PopupMenuItem(
+          child: Text('View Past Operations'),
+          value: Actions.viewPastOperations,
+        ),
+        PopupMenuItem(
+          child: widget.dataset.isPublic
+              ? Text('Make private')
+              : Text('Make public'),
+          value: Actions.changeVisiblity,
+        ),
+        const PopupMenuItem(
+          child: Text('Export to Firebase'),
+          value: Actions.exportToFirebase,
+        ),
+        const PopupMenuItem(
+          child: Text('Show bucket path'),
+          value: Actions.copyGCSPath,
+        ),
+        const PopupMenuDivider(),
+        const PopupMenuItem(
+          child: Text('Delete Dataset'),
+          value: Actions.deleteDataset,
+        ),
+      ],
     );
   }
 
@@ -482,10 +481,10 @@ class LabelEntry extends StatelessWidget {
                         context,
                         MaterialPageRoute(
                           builder: (context) => new ListLabelSamples(
-                                dataset,
-                                labelKey,
-                                labelName,
-                              ),
+                            dataset,
+                            labelKey,
+                            labelName,
+                          ),
                         ),
                       );
                     }

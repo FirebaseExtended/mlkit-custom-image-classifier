@@ -12,18 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import * as functions from 'firebase-functions';
-import * as admin from 'firebase-admin';
-import { auth, Compute, JWT, UserRefreshClient } from 'google-auth-library';
-import { AUTOML_API_SCOPE, AUTOML_ROOT_URL } from './constants';
-import { OperationMetadata } from './types';
+import * as functions from "firebase-functions";
+import * as admin from "firebase-admin";
+import { auth, Compute, JWT, UserRefreshClient } from "google-auth-library";
+import { AUTOML_API_SCOPE, AUTOML_ROOT_URL } from "./constants";
+import { OperationMetadata } from "./types";
 import DocumentSnapshot = FirebaseFirestore.DocumentSnapshot;
 
 type AuthClient = Compute | JWT | UserRefreshClient;
 
 function isValidType(type: string): boolean {
   return (
-    type === 'IMPORT_DATA' || type === 'EXPORT_MODEL' || type === 'TRAIN_MODEL'
+    type === "IMPORT_DATA" || type === "EXPORT_MODEL" || type === "TRAIN_MODEL"
   );
 }
 
@@ -33,14 +33,14 @@ function isValidType(type: string): boolean {
  */
 export const checkOperationProgress = functions.https.onRequest(
   async (request, response) => {
-    const operationType = request.query['type'];
+    const operationType = request.query["type"];
     if (!operationType) {
-      response.status(404).json({ error: 'Operation `type` needed' });
+      response.status(404).json({ error: "Operation `type` needed" });
       return;
     }
-    if (!isValidType(operationType)) {
+    if (!isValidType(operationType as string)) {
       response.status(400).json({
-        error: 'type should be one of IMPORT_DATA, EXPORT_MODEL, TRAIN_MODEL',
+        error: "type should be one of IMPORT_DATA, EXPORT_MODEL, TRAIN_MODEL",
       });
       return;
     }
@@ -49,9 +49,9 @@ export const checkOperationProgress = functions.https.onRequest(
 
       const snapshot = await admin
         .firestore()
-        .collection('operations')
-        .where('type', '==', operationType)
-        .where('done', '==', false)
+        .collection("operations")
+        .where("type", "==", operationType)
+        .where("done", "==", false)
         .get();
 
       if (snapshot.empty) {
@@ -95,7 +95,7 @@ async function updateOperation(doc: DocumentSnapshot, client: AuthClient) {
   if (data === undefined) {
     return;
   }
-  const operationName = data['name'];
+  const operationName = data["name"];
   const resp = await queryOperationStatus(operationName, client);
   await doc.ref.set(
     {

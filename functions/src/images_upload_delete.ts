@@ -25,7 +25,7 @@ export const deleteImage = functions.firestore
   .document('images/{imageId}')
   .onDelete(async change => {
     // 1. Decrement the total images count in label
-    const { parent_key, uploadPath } = change.data() as any;
+    const { parent_key, uploadPath } = change.data();
 
     const labelSnapshot = await admin
       .firestore()
@@ -35,11 +35,12 @@ export const deleteImage = functions.firestore
     await admin.firestore().runTransaction(transaction => {
       return transaction.get(labelSnapshot).then(labelRef => {
         if (labelRef.exists) {
-          const { total_images } = labelRef.data() as any;
+          const { total_images } = labelRef.data();
           transaction.update(labelSnapshot, {
             total_images: Math.max(total_images - 1, 0),
           });
         }
+        return null;
       });
     });
 

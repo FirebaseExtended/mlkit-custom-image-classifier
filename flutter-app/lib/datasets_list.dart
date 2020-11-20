@@ -16,7 +16,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:automl_mlkit/automl_mlkit.dart';
+import 'automl_api.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -70,25 +70,25 @@ class DatasetsList extends StatelessWidget {
                 children: filteredDatasets
                     .map(
                       (dataset) => new Container(
-                            decoration: new BoxDecoration(
-                              border: Border(
-                                  bottom: BorderSide(color: Colors.grey[300])),
-                            ),
-                            height: 100,
-                            child: InkWell(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        new ListLabelsScreen(dataset),
-                                  ),
-                                );
-                              },
-                              child: new DatasetActions(
-                                  dataset, model, scaffoldKey),
-                            ),
-                          ),
+                        decoration: new BoxDecoration(
+                          border: Border(
+                              bottom: BorderSide(color: Colors.grey[300])),
+                        ),
+                        height: 100,
+                        child: InkWell(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    new ListLabelsScreen(dataset),
+                              ),
+                            );
+                          },
+                          child:
+                              new DatasetActions(dataset, model, scaffoldKey),
+                        ),
+                      ),
                     )
                     .toList());
         }
@@ -304,7 +304,7 @@ class DatasetActions extends StatelessWidget {
 
   Future loadModel(String dataset) async {
     try {
-      await AutomlMlkit.loadModelFromCache(dataset: dataset);
+      await AutoMLApi.createDataset(dataset);
       print("Model successfully loaded");
     } on PlatformException catch (e) {
       print("failed to load model");
@@ -313,15 +313,16 @@ class DatasetActions extends StatelessWidget {
   }
 
   Future getImage() async {
-    return ImagePicker.pickImage(source: ImageSource.camera);
+    var pickedFile = await ImagePicker().getImage(source: ImageSource.camera);
+    return pickedFile;
   }
 
   Future<List<dynamic>> recognizeImage(File image) async {
-    final results = await AutomlMlkit.runModelOnImage(imagePath: image.path);
-    return results
-        .map((result) => Inference.fromTfInference(result))
-        .where((i) => i != null)
-        .toList();
+    // final results = await AutomlMlkit.runModelOnImage(imagePath: image.path);
+    // return results
+    //     .map((result) => Inference.fromTfInference(result))
+    //     .where((i) => i != null)
+    //     .toList();
   }
 
   /// downloads the latest model for the given dataset from storage and saves

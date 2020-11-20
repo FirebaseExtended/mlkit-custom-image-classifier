@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Storage } from '@google-cloud/storage';
-import * as fs from 'fs';
-import * as os from 'os';
-import * as path from 'path';
-import * as functions from 'firebase-functions';
-import { PROJECT_ID, AUTOML_BUCKET } from './constants';
+import { Storage } from "@google-cloud/storage";
+import * as fs from "fs";
+import * as os from "os";
+import * as path from "path";
+import * as functions from "firebase-functions";
+import { PROJECT_ID, AUTOML_BUCKET } from "./constants";
 
 /**
  * Generates a label file for a dataset (provided as a query param)
@@ -27,12 +27,12 @@ import { PROJECT_ID, AUTOML_BUCKET } from './constants';
  */
 export const generateLabelFile = functions.https.onRequest(
   async (request, response) => {
-    const dataset = request.query['dataset'];
+    const dataset = request.query["dataset"];
     if (!dataset) {
-      response.status(404).json({ error: 'Dataset not found' });
+      response.status(404).json({ error: "Dataset not found" });
     }
     try {
-      const labelsFile = await generateLabel(dataset);
+      const labelsFile = await generateLabel(dataset as string);
       response.json({ success: `File uploaded to ${labelsFile}` });
     } catch (err) {
       response.status(500).json({ error: err.toString() });
@@ -68,7 +68,7 @@ async function generateLabel(dataset: string): Promise<String> {
     .filter((metadata): metadata is ImageMetadata => metadata !== null)
     .map(({ label, fullPath }) => `gs://${AUTOML_BUCKET}/${fullPath},${label}`);
 
-  console.log('Total rows in labels.csv:', csvRows.length);
+  console.log("Total rows in labels.csv:", csvRows.length);
 
   // No videos found, abort
   if (csvRows.length === 0) {
@@ -77,15 +77,15 @@ async function generateLabel(dataset: string): Promise<String> {
 
   // now that we have the contents of the file, we write this to storage
   const destination = `${dataset}/labels.csv`;
-  const localFilePath = path.join(os.tmpdir(), 'tmp_labels.csv');
+  const localFilePath = path.join(os.tmpdir(), "tmp_labels.csv");
 
   return new Promise((resolve, reject) => {
-    fs.writeFile(localFilePath, csvRows.join('\n'), async err => {
+    fs.writeFile(localFilePath, csvRows.join("\n"), async err => {
       if (err) {
         reject(err);
       }
       // upload the file adjacent to the images folder
-      console.log('Uploading to', destination);
+      console.log("Uploading to", destination);
       await storage
         .bucket(AUTOML_BUCKET)
         .upload(localFilePath, { destination });
@@ -104,9 +104,9 @@ async function generateLabel(dataset: string): Promise<String> {
  * format: `datasets/{dataset}/{label}/{image_number}.jpg`
  */
 function getMetadata(fullPath: string): ImageMetadata | null {
-  const parts = fullPath.replace('datasets/', '').split(path.sep);
+  const parts = fullPath.replace("datasets/", "").split(path.sep);
   if (parts.length < 3) {
-    console.log('unable to split path:' + fullPath);
+    console.log("unable to split path:" + fullPath);
     return null;
   }
   const [dataset, label] = parts;

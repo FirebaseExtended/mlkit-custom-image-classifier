@@ -16,26 +16,26 @@
 export const PROJECT_ID = process.env.GCLOUD_PROJECT;
 
 // The name of the app
-export const APP_NAME = 'Custom Image Classifier';
+export const APP_NAME = "Custom Image Classifier";
 
 // AutoML bucket name
 export const AUTOML_BUCKET = `${PROJECT_ID}-vcm`;
 
 // Location for the project
-export const LOCATION = 'us-central1';
+export const LOCATION = "us-central1";
 
 // AutoML bucket path
 export const AUTOML_BUCKET_URL = `gs://${PROJECT_ID}-vcm`;
 
 export const AUTOML_API_SCOPE =
-  'https://www.googleapis.com/auth/cloud-platform';
+  "https://www.googleapis.com/auth/cloud-platform";
 
 export const AUTOML_API_URL = `https://automl.googleapis.com/v1beta1/projects/${PROJECT_ID}/locations/${LOCATION}`;
 
-export const AUTOML_ROOT_URL = 'https://automl.googleapis.com/v1beta1';
+export const AUTOML_ROOT_URL = "https://automl.googleapis.com/v1beta1";
 
 // TODO: Set this as a part of onboarding
-export const FROM_EMAIL = 'customimageclassifier-no-reply@example.com';
+export const FROM_EMAIL = "customimageclassifier-no-reply@example.com";
 
 // URL for the Firebase function that serves the AutoML API
 export const AUTOML_FUNCTIONS_BACKEND = `https://${LOCATION}-${PROJECT_ID}.cloudfunctions.net/automlApi`;
