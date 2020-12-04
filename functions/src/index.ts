@@ -18,7 +18,11 @@ import * as functions from "firebase-functions";
 /** App for serving the API that interacts with AutoML API */
 import { app } from "./automlapi";
 
-admin.initializeApp();
+// admin.initializeApp();
+const serviceAccount = require('../service-account-key.json');
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount)
+});
 sgMail.setApiKey(functions.config().sendgrid.key);
 
 /**

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import automl from "@google-cloud/automl";
+const automl = require('@google-cloud/automl');
 import * as dayjs from "dayjs";
 import * as express from "express";
 import { auth } from "google-auth-library";
@@ -31,6 +31,7 @@ app.use(express.json());
 app.use(morgan("combined"));
 
 const client = new automl.v1beta1.AutoMlClient();
+const util = require('util');
 
 // Controls model type. For more options, see:
 // https://cloud.google.com/vision/automl/alpha/docs/reference/rest/v1beta1/projects.locations.models#imageclassificationmodelmetadata
@@ -61,7 +62,7 @@ interface ModelResp {
 }
 
 /// create a new dataset
-function createDataset(displayName: String): Promise<any> {
+async function createDataset(displayName: String): Promise<any> {
   const dataset = {
     name: displayName,
     displayName,
@@ -69,8 +70,7 @@ function createDataset(displayName: String): Promise<any> {
       classificationType: "MULTICLASS",
     },
   };
-
-  return client.createDataset({ parent, dataset });
+  return client.createDataset({ parent: parent, dataset: dataset });
 }
 
 const extractIdFromName = (datasetName: string): string => {
@@ -80,14 +80,14 @@ const extractIdFromName = (datasetName: string): string => {
 
 /// returns the ID of a dataset of the format ICN** or null if not found
 function getDatasetName(automlId: string): Promise<string | null> {
- return client.listDatasets({ parent }).then((responses: any[]) => {
-const datasets=responses[0];
-for(const dataset of datasets) {
-if(extractIdFromName(dataset["name"])===automlId) {
-return dataset["name"];
-}
-}
-});
+  return client.listDatasets({ parent }).then((responses: any[]) => {
+    const datasets = responses[0];
+    for (const dataset of datasets) {
+      if (extractIdFromName(dataset["name"]) === automlId) {
+        return dataset["name"];
+      }
+    }
+  });
 }
 
 /// initiates an operation on automl to start importing data for a dataset
@@ -95,15 +95,42 @@ async function importDataset(
   name: string,
   displayName: string,
   labels: string
-): Promise<OperationMetadata> {
+): Promise<any> {
   const inputConfig = {
     gcsSource: {
       inputUris: [`${AUTOML_BUCKET_URL}/${displayName}/${labels}`],
     },
   };
-  return new Promise(client
-    .importData({ name, inputConfig })
-    .then((responses: any[]) => responses[1])); // initial api response with operation metadata
+
+  // return await client
+  //   .importData({ name: name, inputConfig: inputConfig })
+  //   .then((responses: any[]) => responses[0].promise());
+  //initial api response with operation metadata
+  const promise = new Promise((resolve, reject) => {
+
+    client
+      .importData({ name: name, inputConfig: inputConfig })
+      .then(responses => {
+        const operation = responses[0];
+        console.log('Processing import...');
+        resolve(operation);
+      })
+      .then(responses => {
+        // The final result of the operation.
+        const operationDetails = responses[2];
+
+        // Get the data import details.
+        console.log('Data import details:');
+        console.log('\tOperation details:');
+        console.log(`\t\tName: ${operationDetails.name}`);
+        console.log(`\t\tDone: ${operationDetails.done}`);
+      })
+      .catch(err => {
+        console.error(err);
+        reject(err);
+      });
+  });
+  return promise;
 }
 
 /**
@@ -136,8 +163,8 @@ app.post("/datasets", async (req, res, next) => {
         .status(400)
         .send(
           "The displayName contains a not allowed character, the" +
-            " only allowed ones are ASCII Latin letters A-Z and a-z, an underscore (_)," +
-            " and ASCII digits 0-9"
+          " only allowed ones are ASCII Latin letters A-Z and a-z, an underscore (_)," +
+          " and ASCII digits 0-9"
         );
       return;
     }
@@ -146,7 +173,7 @@ app.post("/datasets", async (req, res, next) => {
     res.json(response);
   } catch (err) {
     res.status(500);
-    res.json({message: err.message});
+    res.json({ message: err.message });
     console.error(err);
   }
 });
@@ -172,7 +199,7 @@ app.delete("/datasets/:datasetId", async (req, res, next) => {
   } catch (err) {
     console.error(err);
     res.status(500);
-    res.json({message: err.message});
+    res.json({ message: err.message });
   }
 });
 
@@ -210,7 +237,7 @@ app.post("/import", async (req, res, next) => {
   } catch (err) {
     console.error(err);
     res.status(500);
-    res.json({message: err.message});
+    res.json({ message: err.message });
   }
 });
 
@@ -227,6 +254,9 @@ app.post("/import", async (req, res, next) => {
  * Uses the rest API
  */
 app.post("/train", async (req, res, next) => {
+  console.log(
+    `Training function execute`
+  );
   const { datasetId } = req.body;
   if (!datasetId) {
     res.status(400).json({ error: "Need a dataset Id" });
@@ -247,25 +277,27 @@ app.post("/train", async (req, res, next) => {
       return;
     }
 
-    const authClient = await auth.getClient({ scopes: [AUTOML_API_SCOPE] });
-    const url = `${AUTOML_API_URL}/models`;
+    // const authClient = await auth.getClient({ scopes: [AUTOML_API_SCOPE] });
+    // const url = `${AUTOML_API_URL}/models`;
 
-    const resp = await authClient.request({
-      method: "POST",
-      data: {
+    const request = {
+      parent: parent,
+      model: {
         displayName: `${dayjs().format(MODEL_VERSION_FORMAT)}`,
-        dataset_id: datasetId,
-        imageClassificationModelMetadata: { trainBudget, modelType },
+        datasetId: datasetId,
+        imageClassificationModelMetadata: { trainBudget, modelType }, // Leave unset, to use the default base model
       },
-      url,
-    });
+    };
 
-    const operationMetadata = resp.data as OperationMetadata;
-    res.json(operationMetadata);
+    const [operation] = await client.createModel(request);
+    console.log('Training started...');
+    console.log(`Training operation name: ${operation.name}`);
+    console.log(`Training operation metadata: ${operation.metadata}`);
+    res.json(operation);
   } catch (err) {
     console.error(err);
     res.status(500);
-    res.json({message: err.message});
+    res.json({ message: err.message });
   }
 });
 
@@ -313,7 +345,7 @@ app.post("/export", async (req, res, next) => {
   } catch (err) {
     console.error(err);
     res.status(500);
-    res.json({message: err.message});
+    res.json({ message: err.message });
   }
 });
 
@@ -375,7 +407,7 @@ app.post("/exportlatestmodel", async (req, res, next) => {
   } catch (err) {
     console.error(err);
     res.status(500);
-    res.json({message: err.message});
+    res.json({ message: err.message });
   }
 });
 
@@ -389,7 +421,7 @@ app.get("/models", async (req, res, next) => {
   } catch (err) {
     console.error(err);
     res.status(500);
-    res.json({message: err.message});
+    res.json({ message: err.message });
   }
 });
 

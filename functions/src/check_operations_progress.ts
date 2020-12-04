@@ -70,7 +70,7 @@ export const checkOperationProgress = functions.https.onRequest(
         success: `${snapshot.docs.length} operations updated: ${operationType}`,
       });
     } catch (err) {
-      response.status(500).json({ error: err.toJSON() });
+      response.status(500).json({ error: err.json });
     }
   }
 );

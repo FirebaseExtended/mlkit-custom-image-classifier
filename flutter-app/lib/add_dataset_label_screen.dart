@@ -96,15 +96,14 @@ class _AddDatasetFormState extends State<AddDatasetForm> {
     }
 
     final datasetId = await AutoMLApi.createDataset(title);
-
-    await Firestore.instance.collection('datasets').document().setData({
+    Firestore.instance.collection('datasets').add({
       'automlId': datasetId,
       'name': title,
       'description': description,
       'ownerId': widget.userModel.user.user.uid,
       'isPublic': setPublic,
       'collaborators': [],
-    });
+    }).then((value) => print(''));
   }
 
   void _handleSwitchChange(bool value) {

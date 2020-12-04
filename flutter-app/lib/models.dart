@@ -77,7 +77,7 @@ class Dataset {
       isPublic: document["isPublic"] == true,
       ownerId: document["ownerId"],
       automlId: document["automlId"],
-      collaborators: document["collaborators"].map((x) => x as String).toList(),
+      collaborators: [], //document["collaborators"].map((x) => x as String).toList(),
     );
   }
 

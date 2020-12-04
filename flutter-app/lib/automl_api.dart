@@ -78,9 +78,36 @@ class AutoMLApi {
       },
     );
     if (response.statusCode == 200) {
-      final Map body = jsonDecode(response.body);
-      print("Got response" + body.toString());
-      return body["name"];
+      if (response.body.isNotEmpty) {
+        final Map body = jsonDecode(response.body);
+
+        print("Got response" + body.toString());
+        return body["name"];
+      } else {
+        return "some";
+      }
+    } else {
+      throw Exception(
+          "Error while initiating importing the dataset: " + response.body);
+    }
+  }
+
+  static Future<String> train(String dataset) async {
+    final response = await http.post(
+      Uri.https(FUNCTIONS_URL, "$_AUTOMLAPI/train"),
+      body: {
+        "datasetId": dataset,
+      },
+    );
+    if (response.statusCode == 200) {
+      if (response.body.isNotEmpty) {
+        final Map body = jsonDecode(response.body);
+
+        print("Got response" + body.toString());
+        return body["name"];
+      } else {
+        return "some";
+      }
     } else {
       throw Exception(
           "Error while initiating importing the dataset: " + response.body);

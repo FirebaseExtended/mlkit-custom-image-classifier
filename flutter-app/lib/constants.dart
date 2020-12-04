@@ -25,7 +25,7 @@ const MIN_TESTING_VIDEOS_PER_LABEL = 1;
 const MIN_VALIDATION_VIDEOS_PER_LABEL = 1;
 
 // Toggles where video type configuration (training/test/validation) is allowed
-const SHOW_VIDEO_TYPE_TOGGLES = false;
+const SHOW_VIDEO_TYPE_TOGGLES = true;
 
 // Path to the AutoML Bucket
 // TODO: Needs to be configured as a part of onboarding

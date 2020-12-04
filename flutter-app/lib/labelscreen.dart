@@ -111,8 +111,8 @@ class _ListLabelsScreenState extends State<ListLabelsScreen> {
 
       // Add this operation to Firestore
       Firestore.instance.collection('operations').add({
-        "dataset_id": widget.dataset.automlId,
-        "name": importDatasetOperation,
+        "dataset_id": widget?.dataset?.automlId?.toString(),
+        "name": importDatasetOperation.toString(),
         "last_updated": DateTime.now().millisecondsSinceEpoch,
         "done": false,
         "training_budget": trainingBudget,
@@ -123,10 +123,14 @@ class _ListLabelsScreenState extends State<ListLabelsScreen> {
 
       // set the token on dataset so that it can be notfied when training completes
       final token = await _firebaseMessaging.getToken();
-      await Firestore.instance
+      final geterateToken = await Firestore.instance
           .collection('datasets')
           .document(widget.dataset.id)
-          .setData({"token": token});
+          .updateData({"token": token});
+
+      final createDatasetResponse =
+          await AutoMLApi.train(widget?.dataset?.automlId);
+      print(createDatasetResponse);
     } catch (err) {
       showSnackBar("Error while starting training");
       print("Error $err");
