@@ -31,9 +31,9 @@ export const AUTOML_BUCKET_URL = `gs://${PROJECT_ID}-vcm`;//testproject-afd2f.ap
 export const AUTOML_API_SCOPE =
   "https://www.googleapis.com/auth/cloud-platform";
 
-export const AUTOML_API_URL = `https://eu-automl.googleapis.com/v1beta1/projects/${PROJECT_ID}/locations/${LOCATION}`;
+export const AUTOML_API_URL = `https://automl.googleapis.com/v1beta1/projects/${PROJECT_ID}/locations/${LOCATION}`;
 
-export const AUTOML_ROOT_URL = "https://eu-automl.googleapis.com/v1beta1";
+export const AUTOML_ROOT_URL = "https://automl.googleapis.com/v1";
 
 // TODO: Set this as a part of onboarding
 export const FROM_EMAIL = "emigrantdd@gmail.com";

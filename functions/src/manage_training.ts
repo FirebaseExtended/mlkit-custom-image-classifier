@@ -112,6 +112,7 @@ export const manageTraining = functions.firestore
           headers: { "Content-Type": "application/json" },
         }
       );
+      console.log('got response to export model');
       if (resp.status !== 200) {
         console.error(`Error while exporting model`, resp.body);
         return;

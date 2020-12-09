@@ -15,7 +15,7 @@
 const automl = require('@google-cloud/automl');
 import * as dayjs from "dayjs";
 import * as express from "express";
-import { auth } from "google-auth-library";
+import { GoogleAuth } from "google-auth-library";
 import * as morgan from "morgan";
 import {
   AUTOML_API_SCOPE,
@@ -30,6 +30,9 @@ export const app = express();
 app.use(express.json());
 app.use(morgan("combined"));
 
+const googleAuth = new GoogleAuth({
+  scopes: 'https://www.googleapis.com/auth/cloud-platform'
+});
 const client = new automl.v1beta1.AutoMlClient();
 const util = require('util');
 
@@ -106,31 +109,44 @@ async function importDataset(
   //   .importData({ name: name, inputConfig: inputConfig })
   //   .then((responses: any[]) => responses[0].promise());
   //initial api response with operation metadata
-  const promise = new Promise((resolve, reject) => {
+  const [responses] = await client
+    .importData({ name: name, inputConfig: inputConfig });
 
-    client
-      .importData({ name: name, inputConfig: inputConfig })
-      .then(responses => {
-        const operation = responses[0];
-        console.log('Processing import...');
-        resolve(operation);
-      })
-      .then(responses => {
-        // The final result of the operation.
-        const operationDetails = responses[2];
+  const operation = responses[0];
+  console.log('Processing import...');
+  //await listOperationStatus();
+  // const [finalResp] = await operation.promise();
+  // const operationDetails = finalResp[2];
 
-        // Get the data import details.
-        console.log('Data import details:');
-        console.log('\tOperation details:');
-        console.log(`\t\tName: ${operationDetails.name}`);
-        console.log(`\t\tDone: ${operationDetails.done}`);
-      })
-      .catch(err => {
-        console.error(err);
-        reject(err);
-      });
-  });
-  return promise;
+  // // Get the data import details.
+  // console.log('Data import details:');
+  // console.log('\tOperation details:');
+  // console.log(`\t\tName: ${operationDetails.name}`);
+  // console.log(`\t\tDone: ${operationDetails.done}`);
+  return responses;
+
+  // return responses[0];
+  //  return 
+  //     .then(responses => {
+  //       const operation = responses[0];
+  //       console.log('Processing import...');
+  //       return await operation.promise();
+  //     })
+  //     .then(responses => {
+  //       // The final result of the operation.
+  //       const operationDetails = responses[2];
+
+  //       // Get the data import details.
+  //       console.log('Data import details:');
+  //       console.log('\tOperation details:');
+  //       console.log(`\t\tName: ${operationDetails.name}`);
+  //       console.log(`\t\tDone: ${operationDetails.done}`);
+  //     })
+  //     .catch(err => {
+  //       console.error(err);
+  //       return err;
+  //     });
+  // });
 }
 
 /**
@@ -138,7 +154,7 @@ async function importDataset(
  */
 app.get("/datasets", async (req, res, next) => {
   try {
-    const authClient = await auth.getClient({ scopes: [AUTOML_API_SCOPE] });
+    const authClient = await googleAuth.getClient();
     const url = `${AUTOML_API_URL}/datasets`;
     const resp = await authClient.request({ url });
     res.json(resp.data);
@@ -294,12 +310,47 @@ app.post("/train", async (req, res, next) => {
     console.log(`Training operation name: ${operation.name}`);
     console.log(`Training operation metadata: ${operation.metadata}`);
     res.json(operation);
+    // await listOperationStatus();
+    // const modelId = extractIdFromName(`${dayjs().format(MODEL_VERSION_FORMAT)}`);
+    // console.log(`model id: ${modelId}`);
+    // await deployModel(modelId);
   } catch (err) {
     console.error(err);
     res.status(500);
     res.json({ message: err.message });
   }
 });
+
+async function listOperationStatus(): Promise<any> {
+  // Construct request
+  const request = {
+    name: parent,
+    filter: '',
+  };
+
+  const [response] = await client.operationsClient.listOperations(request);
+  console.log('List of operation status:');
+  for (const operation of response) {
+    console.log(`Name: ${operation.name}`);
+    console.log('Operation details:');
+    console.log(`${operation.done}`);
+    console.log(`${operation.metadata.updateTime}`);
+    // manageTraining
+  }
+}
+
+async function deployModel(modelId: string) {
+  // Construct request
+  const request = {
+    name: client.modelPath(PROJECT_ID, LOCATION, modelId),
+  };
+
+  const [operation] = await client.deployModel(request);
+
+  // Wait for operation to complete.
+  const [response] = await operation.promise();
+  console.log(`Model deployment finished. ${response}`);
+}
 
 /**
  * Exports a model in tflite format to a gcspath
@@ -323,7 +374,7 @@ app.post("/export", async (req, res, next) => {
     return;
   }
 
-  const authClient = await auth.getClient({ scopes: [AUTOML_API_SCOPE] });
+  const authClient = await googleAuth.getClient();
   const url = `${AUTOML_API_URL}/models/${modelId}:export`;
 
   try {
@@ -387,7 +438,7 @@ app.post("/exportlatestmodel", async (req, res, next) => {
     // 3. Initiate its export
     console.log("Initiating export for the latest model", latestModel);
     const modelId = extractIdFromName(latestModel.name);
-    const authClient = await auth.getClient({ scopes: [AUTOML_API_SCOPE] });
+    const authClient = await googleAuth.getClient();
     const url = `${AUTOML_API_URL}/models/${modelId}:export`;
     const operationMetadata = await authClient
       .request({
@@ -425,9 +476,10 @@ app.get("/models", async (req, res, next) => {
   }
 });
 
+
 /** Queries all models from AutoML */
 async function getAllModels() {
-  const authClient = await auth.getClient({ scopes: [AUTOML_API_SCOPE] });
+  const authClient = await googleAuth.getClient();
   const url = `${AUTOML_API_URL}/models`;
   return authClient.request({ url });
 }
