@@ -59,7 +59,7 @@ class ZeroStateSignIn extends StatelessWidget {
           ),
           GoogleSignInButton(
             onPressed: () {
-              model.beginSignIn().then((FirebaseUser user) {
+              model.beginSignIn().then((AuthResult user) {
                 model.setLoggedInUser(user);
                 Navigator.of(context).pop(true);
               }).catchError((e) => print(e));

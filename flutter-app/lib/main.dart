@@ -27,6 +27,7 @@ import 'storage.dart';
 import 'user_model.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   final FirebaseStorage storage = await initStorage(STORAGE_BUCKET);
   final FirebaseStorage autoMlStorage = await initStorage(AUTOML_BUCKET);
   runApp(new MyApp(
@@ -145,7 +146,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           text: 'Logout',
                           children: [
                             TextSpan(
-                              text: " (${model.user.displayName})",
+                              text: " (${model.user.user.displayName})",
                               style: TextStyle(
                                 color: Colors.black38,
                                 fontStyle: FontStyle.italic,

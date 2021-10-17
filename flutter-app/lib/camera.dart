@@ -55,7 +55,7 @@ class Camera extends StatefulWidget {
   }
 }
 
-class _CameraState extends State<Camera> {
+class _CameraState extends State<Camera> with WidgetsBindingObserver {
   CameraController controller;
   String imagePath;
   String videoPath;
@@ -67,16 +67,34 @@ class _CameraState extends State<Camera> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      for (CameraDescription cameraDescription in cameras) {
-        if (cameraDescription.lensDirection == CameraLensDirection.back)
-          onNewCameraSelected(cameraDescription);
+    WidgetsBinding.instance.addObserver(this);
+
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   for (CameraDescription cameraDescription in cameras) {
+    //     if (cameraDescription.lensDirection == CameraLensDirection.back)
+    //       onNewCameraSelected(cameraDescription);
+    //   }
+    // });
+  }
+
+   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (controller == null || !controller.value.isInitialized) {
+      return;
+    }
+
+    if (state == AppLifecycleState.inactive) {
+      controller?.dispose();
+    } else if (state == AppLifecycleState.resumed) {
+      if (controller != null) {
+        onNewCameraSelected(controller.description);
       }
-    });
+    }
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     controller?.dispose();
     super.dispose();
   }
@@ -89,7 +107,7 @@ class _CameraState extends State<Camera> {
         title: Text('Capture sample for ${widget.label}'),
       ),
       body: Container(
-        decoration: new BoxDecoration(color: Colors.black),
+        decoration: new BoxDecoration(color: Colors.yellow),
         child: Column(
           children: <Widget>[
             Expanded(
@@ -101,12 +119,12 @@ class _CameraState extends State<Camera> {
                   ),
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.black,
+                  color: Colors.yellow,
                   border: Border.all(
                     color:
                         controller != null && controller.value.isRecordingVideo
                             ? Colors.redAccent
-                            : Colors.black45,
+                            : Colors.green,
                     width: 2.0,
                   ),
                 ),
@@ -118,20 +136,70 @@ class _CameraState extends State<Camera> {
               onRecordingStop: onStopButtonPressed,
               onPictureTaken: onTakePictureButtonPressed,
             ),
+            // Padding(
+            //   padding: const EdgeInsets.all(5.0),
+            //   child: Row(
+            //     mainAxisAlignment: MainAxisAlignment.start,
+            //     children: <Widget>[
+            //       _thumbnailWidget(),
+            //     ],
+            //   ),
+            // ),
             Padding(
-              padding: const EdgeInsets.all(5.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: <Widget>[
-                  _thumbnailWidget(),
-                ],
-              ),
+            padding: const EdgeInsets.all(5.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: <Widget>[
+                _cameraTogglesRowWidget(),
+                _thumbnailWidget(),
+              ],
             ),
+          ),
           ],
         ),
       ),
     );
   }
+
+   /// Display a row of toggle to select the camera (or a message if no camera is available).
+  Widget _cameraTogglesRowWidget() {
+    final List<Widget> toggles = <Widget>[];
+
+    if (cameras.isEmpty) {
+      return const Text('No camera found');
+    } else {
+      for (CameraDescription cameraDescription in cameras) {
+        toggles.add(
+          SizedBox(
+            width: 90.0,
+            child: RadioListTile<CameraDescription>(
+              title: Icon(getCameraLensIcon(cameraDescription.lensDirection)),
+              groupValue: controller?.description,
+              value: cameraDescription,
+              onChanged: controller != null && controller.value.isRecordingVideo
+                  ? null
+                  : onNewCameraSelected,
+            ),
+          ),
+        );
+      }
+    }
+
+    return Row(children: toggles);
+  }
+
+  /// Returns a suitable camera icon for [direction].
+IconData getCameraLensIcon(CameraLensDirection direction) {
+  switch (direction) {
+    case CameraLensDirection.back:
+      return Icons.camera_rear;
+    case CameraLensDirection.front:
+      return Icons.camera_front;
+    case CameraLensDirection.external:
+      return Icons.camera;
+  }
+  throw ArgumentError('Unknown lens direction');
+}
 
   /// Display the preview from the camera (or a message if the preview is not available).
   Widget _cameraPreviewWidget() {
@@ -176,7 +244,10 @@ class _CameraState extends State<Camera> {
     if (controller != null) {
       await controller.dispose();
     }
-    controller = CameraController(cameraDescription, ResolutionPreset.low);
+    setState(() {
+          controller = CameraController(cameraDescription, ResolutionPreset.medium);
+
+    });
 
     // If the controller is updated then update the UI.
     controller.addListener(() {
@@ -227,7 +298,7 @@ class _CameraState extends State<Camera> {
         ),
       );
 
-      final snapshot = await uploadTask.onComplete;
+      final snapshot = await uploadTask.lastSnapshot;
       final downloadUrl = await snapshot.ref.getDownloadURL();
 
       Firestore.instance.collection('images').add({
@@ -239,7 +310,7 @@ class _CameraState extends State<Camera> {
         'uploadPath':
             'datasets/${widget.dataset.name}/${widget.label}/$filename',
         'gcsURI': downloadUrl,
-        'uploader': widget.userModel.user.email,
+        'uploader': widget.userModel.user.user.email,
       });
 
       final labelRef =
@@ -248,9 +319,8 @@ class _CameraState extends State<Camera> {
       // increment count for the label
       await Firestore.instance.runTransaction((Transaction tx) async {
         DocumentSnapshot snapshot = await tx.get(labelRef);
-        await tx.update(labelRef, <String, dynamic>{
-          'total_images': snapshot.data['total_images'] + 1
-        });
+        await tx.update(labelRef,
+            <String, dynamic>{'total_images': snapshot['total_images'] + 1});
       });
     }
   }
@@ -289,7 +359,7 @@ class _CameraState extends State<Camera> {
             'activity': 'videoUpload',
             'parent_key': widget.labelKey,
             'dataset_parent_key': widget.dataset.id,
-            'uploader': widget.userModel.user.email,
+            'uploader': widget.userModel.user.user.email,
           },
         ),
       );

@@ -96,7 +96,7 @@
     // Warn when using deprecated APIs.
     "deprecation": {"severity": "warning"},
 
-    // -- Light Warnings --
+    // -- Light Warnigns --
     // These rules are intended to help developers use better style. Simpler code has fewer bugs. These would be "info"
     // if TSLint supported such a level.
 
@@ -107,10 +107,13 @@
     // Warns if function overloads could be unified into a single function with optional or rest parameters.
     "unified-signatures": {"severity": "warning"},
 
+    // Warns if code has an import or variable that is unused.
+    "no-unused-variable": {"severity": "warning"},
+
     // Prefer const for values that will not change. This better documents code.
     "prefer-const": {"severity": "warning"},
 
-    // Multi-line object literals and function calls should have a trailing comma. This helps avoid merge conflicts.
+    // Multi-line object liiterals and function calls should have a trailing comma. This helps avoid merge conflicts.
     "trailing-comma": {"severity": "warning"}
   },
 

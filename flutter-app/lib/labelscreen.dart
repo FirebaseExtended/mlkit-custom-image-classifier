@@ -111,8 +111,8 @@ class _ListLabelsScreenState extends State<ListLabelsScreen> {
 
       // Add this operation to Firestore
       Firestore.instance.collection('operations').add({
-        "dataset_id": widget.dataset.automlId,
-        "name": importDatasetOperation,
+        "dataset_id": widget?.dataset?.automlId?.toString(),
+        "name": importDatasetOperation.toString(),
         "last_updated": DateTime.now().millisecondsSinceEpoch,
         "done": false,
         "training_budget": trainingBudget,
@@ -123,10 +123,14 @@ class _ListLabelsScreenState extends State<ListLabelsScreen> {
 
       // set the token on dataset so that it can be notfied when training completes
       final token = await _firebaseMessaging.getToken();
-      await Firestore.instance
+      final geterateToken = await Firestore.instance
           .collection('datasets')
           .document(widget.dataset.id)
-          .setData({"token": token}, merge: true);
+          .updateData({"token": token});
+
+      final createDatasetResponse =
+          await AutoMLApi.train(widget?.dataset?.automlId);
+      print(createDatasetResponse);
     } catch (err) {
       showSnackBar("Error while starting training");
       print("Error $err");
@@ -205,8 +209,7 @@ class _ListLabelsScreenState extends State<ListLabelsScreen> {
         Firestore.instance
             .collection('datasets')
             .document(widget.dataset.id)
-            .setData({"isPublic": !widget.dataset.isPublic},
-                merge: true).whenComplete(() {
+            .setData({"isPublic": !widget.dataset.isPublic}).whenComplete(() {
           Navigator.pop(context);
         });
         return;
@@ -235,38 +238,38 @@ class _ListLabelsScreenState extends State<ListLabelsScreen> {
     return PopupMenuButton<Actions>(
       onSelected: onPopupMenuItemClicked,
       itemBuilder: (BuildContext context) => <PopupMenuEntry<Actions>>[
-            const PopupMenuItem(
-              child: Text('Train model'),
-              value: Actions.trainModel,
-            ),
-            const PopupMenuItem(
-              child: Text('View Collaborators'),
-              value: Actions.viewCollaborators,
-            ),
-            const PopupMenuItem(
-              child: Text('View Past Operations'),
-              value: Actions.viewPastOperations,
-            ),
-            PopupMenuItem(
-              child: widget.dataset.isPublic
-                  ? Text('Make private')
-                  : Text('Make public'),
-              value: Actions.changeVisiblity,
-            ),
-            const PopupMenuItem(
-              child: Text('Export to Firebase'),
-              value: Actions.exportToFirebase,
-            ),
-            const PopupMenuItem(
-              child: Text('Show bucket path'),
-              value: Actions.copyGCSPath,
-            ),
-            const PopupMenuDivider(),
-            const PopupMenuItem(
-              child: Text('Delete Dataset'),
-              value: Actions.deleteDataset,
-            ),
-          ],
+        const PopupMenuItem(
+          child: Text('Train model'),
+          value: Actions.trainModel,
+        ),
+        const PopupMenuItem(
+          child: Text('View Collaborators'),
+          value: Actions.viewCollaborators,
+        ),
+        const PopupMenuItem(
+          child: Text('View Past Operations'),
+          value: Actions.viewPastOperations,
+        ),
+        PopupMenuItem(
+          child: widget.dataset.isPublic
+              ? Text('Make private')
+              : Text('Make public'),
+          value: Actions.changeVisiblity,
+        ),
+        const PopupMenuItem(
+          child: Text('Export to Firebase'),
+          value: Actions.exportToFirebase,
+        ),
+        const PopupMenuItem(
+          child: Text('Show bucket path'),
+          value: Actions.copyGCSPath,
+        ),
+        const PopupMenuDivider(),
+        const PopupMenuItem(
+          child: Text('Delete Dataset'),
+          value: Actions.deleteDataset,
+        ),
+      ],
     );
   }
 
@@ -482,10 +485,10 @@ class LabelEntry extends StatelessWidget {
                         context,
                         MaterialPageRoute(
                           builder: (context) => new ListLabelSamples(
-                                dataset,
-                                labelKey,
-                                labelName,
-                              ),
+                            dataset,
+                            labelKey,
+                            labelName,
+                          ),
                         ),
                       );
                     }

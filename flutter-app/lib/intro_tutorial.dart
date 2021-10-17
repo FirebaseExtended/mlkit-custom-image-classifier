@@ -14,6 +14,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:intro_slider/intro_slider.dart';
+import 'package:intro_slider/slide_object.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class IntroTutorial extends StatefulWidget {
@@ -35,7 +36,8 @@ class _IntroTutorialState extends State<IntroTutorial> {
     slides.add(
       new Slide(
         title: "USE",
-        description: "Use image classification ML models to classify the world around you.",
+        description:
+            "Use image classification ML models to classify the world around you.",
         pathImage: "images/use.png",
         backgroundColor: Colors.deepPurple,
       ),

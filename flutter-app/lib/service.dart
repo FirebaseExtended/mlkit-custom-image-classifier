@@ -14,6 +14,8 @@
 
 import 'package:http/http.dart' as http;
 
+import 'constants.dart';
+
 /// Common operations over backend dataset service
 class DatasetService {
   static const _BACKEND_URL = "35.192.148.181";
@@ -30,7 +32,8 @@ class DatasetService {
   }
 
   static Future<String> train(String dataset) async {
-    final response = await http.get(Uri.http(_BACKEND_URL, "/train", {
+    final response =
+        await http.get(Uri.http(FUNCTIONS_URL, "/automlApi/train", {
       "dataset": dataset,
     }));
     if (response.statusCode == 200) {

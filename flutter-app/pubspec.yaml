@@ -29,34 +29,31 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  cloud_firestore: ^0.9.13
+ 
   camera: 0.5.0
-  path_provider: ^0.5.0+1
-  transparent_image: ^0.1.0
-  google_sign_in: ^4.0.0
-  http: ^0.12.0
-  timeago: ^2.0.9
-  scoped_model: ^1.0.1
-  image_picker: ^0.6.1
-  intro_slider: ^1.2.0
-  url_launcher: ^5.0.2
-  shared_preferences: ^0.5.2
-
-  # The following adds the Cupertino Icons font to your application.
-  # Use with the CupertinoIcons class for iOS style icons.
+  path_provider: ^1.6.24
+  transparent_image: ^1.0.0
+  google_sign_in: ^4.5.6
+  http: ^0.12.2
+  timeago: ^2.0.28
+  scoped_model: ^1.1.0
+  image_picker: ^0.6.7+14
+  intro_slider: ^2.3.3
+  url_launcher: ^5.7.10
+  shared_preferences: ^0.5.12+4
   cupertino_icons: ^0.1.2
+  
+  firebase_core: ^0.4.0+9
+  firebase_analytics: ^5.0.2
+  firebase_storage: 
+  firebase_messaging: 
+  firebase_auth: ^0.14.0+5
+  cloud_firestore: ^0.12.9+5
+  firebase_ml_vision: 
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  automl_mlkit:
-    path: ../automl_mlkit/
-  firebase_auth:
-    path: ../firebase_auth/
-  firebase_storage:
-    path: ../firebase_storage/
-  firebase_messaging:
-    path: ../firebase_messaging/
 
 # For information on the generic Dart part of this file, see the
 # following page: https://www.dartlang.org/tools/pub/pubspec

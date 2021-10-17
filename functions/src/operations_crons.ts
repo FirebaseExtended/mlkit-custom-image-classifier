@@ -12,19 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import * as functions from 'firebase-functions';
-import * as got from 'got';
-import { CHECK_OPERATIONS_URL } from './constants';
+import * as functions from "firebase-functions";
+const got = require('got');
+import { CHECK_OPERATIONS_URL } from "./constants";
 
 /**
  * Check progress for import data operations
  */
 export const importDataProgressCron = functions.pubsub
-  .schedule('every 5 minutes')
+  .schedule("every 5 minutes")
   .onRun(async () => {
     try {
       const response = await got(`${CHECK_OPERATIONS_URL}?type=IMPORT_DATA`);
-      console.log('successful response', response.body);
+      console.log("successful response", response.body);
     } catch (error) {
       console.error(error.response.body);
     }
@@ -34,11 +34,11 @@ export const importDataProgressCron = functions.pubsub
  * Check progress for export model operations
  */
 export const exportModelProgressCron = functions.pubsub
-  .schedule('every 10 minutes')
+  .schedule("every 10 minutes")
   .onRun(async () => {
     try {
       const response = await got(`${CHECK_OPERATIONS_URL}?type=EXPORT_MODEL`);
-      console.log('successful response', response.body);
+      console.log("successful response", response.body);
     } catch (error) {
       console.error(error.response.body);
     }
@@ -48,11 +48,11 @@ export const exportModelProgressCron = functions.pubsub
  * Check progress for train model operations
  */
 export const trainModelProgressCron = functions.pubsub
-  .schedule('every 15 minutes')
+  .schedule("every 15 minutes")
   .onRun(async () => {
     try {
       const response = await got(`${CHECK_OPERATIONS_URL}?type=TRAIN_MODEL`);
-      console.log('successful response', response.body);
+      console.log("successful response", response.body);
     } catch (error) {
       console.error(error.response.body);
     }

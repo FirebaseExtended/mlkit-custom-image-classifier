@@ -12,18 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import * as functions from 'firebase-functions';
-import * as admin from 'firebase-admin';
-import { FieldValue } from '@google-cloud/firestore';
+import * as functions from "firebase-functions";
+import * as admin from "firebase-admin";
+import { FieldValue } from "@google-cloud/firestore";
 
 /**
- * Deletes a collaborator's email from its parent dataset's field
+ * Deletes a collaborator"s email from its parent dataset"s field
  * when the collaborator is removed from the collaborators collection
  */
 export const removeCollaborator = functions.firestore
-  .document('collaborators/{collaboratorId}')
+  .document("collaborators/{collaboratorId}")
   .onDelete(async (snap, context) => {
-    const { email, parent_key: datasetKey } = snap.data() as any;
+    const { email, parent_key: datasetKey } = snap.data();
 
     console.log(
       `Attempting to remove ${email} from dataset with key: ${datasetKey}`
@@ -31,7 +31,7 @@ export const removeCollaborator = functions.firestore
     try {
       const datasetRef = admin
         .firestore()
-        .collection('datasets')
+        .collection("datasets")
         .doc(datasetKey);
       await datasetRef.update({ collaborators: FieldValue.arrayRemove(email) });
     } catch (err) {

@@ -161,9 +161,11 @@ class _InviteUserAlertDialogState extends State<InviteUserAlertDialog> {
                 'invitedAt': DateTime.now().toIso8601String(),
               });
 
-              await datasetRef.setData({
-                "collaborators": FieldValue.arrayUnion([emailId]),
-              }, merge: true);
+              await datasetRef.setData(
+                {
+                  "collaborators": FieldValue.arrayUnion([emailId]),
+                },
+              );
             }
 
             Navigator.pop(context);

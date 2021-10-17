@@ -12,33 +12,37 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import automl from '@google-cloud/automl';
-import * as dayjs from 'dayjs';
-import * as express from 'express';
-import { auth } from 'google-auth-library';
-import * as morgan from 'morgan';
+const automl = require('@google-cloud/automl');
+import * as dayjs from "dayjs";
+import * as express from "express";
+import { GoogleAuth } from "google-auth-library";
+import * as morgan from "morgan";
 import {
   AUTOML_API_SCOPE,
   AUTOML_API_URL,
   AUTOML_BUCKET_URL,
   LOCATION,
   PROJECT_ID,
-} from './constants';
-import { OperationMetadata } from './types';
+} from "./constants";
+import { OperationMetadata } from "./types";
 
 export const app = express();
 app.use(express.json());
-app.use(morgan('combined'));
+app.use(morgan("combined"));
 
+const googleAuth = new GoogleAuth({
+  scopes: 'https://www.googleapis.com/auth/cloud-platform'
+});
 const client = new automl.v1beta1.AutoMlClient();
+const util = require('util');
 
 // Controls model type. For more options, see:
 // https://cloud.google.com/vision/automl/alpha/docs/reference/rest/v1beta1/projects.locations.models#imageclassificationmodelmetadata
-const DEFAULT_MODEL_TYPE = 'mobile-high-accuracy-1';
+const DEFAULT_MODEL_TYPE = "mobile-high-accuracy-1";
 
 const DEFAULT_TRAIN_BUDGET = 1;
-const DATASET_NAME_REGEX = new RegExp('^[a-zA-Z_0-9]+$');
-const MODEL_VERSION_FORMAT = 'vYYYYMMDDHHmmss';
+const DATASET_NAME_REGEX = new RegExp("^[a-zA-Z_0-9]+$");
+const MODEL_VERSION_FORMAT = "vYYYYMMDDHHmmss";
 const parent = client.locationPath(PROJECT_ID, LOCATION);
 
 // A model as returned by AutoML /models response
@@ -61,20 +65,19 @@ interface ModelResp {
 }
 
 /// create a new dataset
-function createDataset(displayName: String): Promise<any> {
+async function createDataset(displayName: String): Promise<any> {
   const dataset = {
     name: displayName,
     displayName,
     imageClassificationDatasetMetadata: {
-      classificationType: 'MULTICLASS',
+      classificationType: "MULTICLASS",
     },
   };
-
-  return client.createDataset({ parent, dataset });
+  return client.createDataset({ parent: parent, dataset: dataset });
 }
 
 const extractIdFromName = (datasetName: string): string => {
-  const parts = datasetName.split('/');
+  const parts = datasetName.split("/");
   return parts[parts.length - 1];
 };
 
@@ -83,11 +86,10 @@ function getDatasetName(automlId: string): Promise<string | null> {
   return client.listDatasets({ parent }).then((responses: any[]) => {
     const datasets = responses[0];
     for (const dataset of datasets) {
-      if (extractIdFromName(dataset['name']) === automlId) {
-        return dataset['name'];
+      if (extractIdFromName(dataset["name"]) === automlId) {
+        return dataset["name"];
       }
     }
-    return null;
   });
 }
 
@@ -96,23 +98,63 @@ async function importDataset(
   name: string,
   displayName: string,
   labels: string
-): Promise<OperationMetadata> {
+): Promise<any> {
   const inputConfig = {
     gcsSource: {
       inputUris: [`${AUTOML_BUCKET_URL}/${displayName}/${labels}`],
     },
   };
-  return client
-    .importData({ name, inputConfig })
-    .then((responses: any[]) => responses[1]); // initial api response with operation metadata
+
+  // return await client
+  //   .importData({ name: name, inputConfig: inputConfig })
+  //   .then((responses: any[]) => responses[0].promise());
+  //initial api response with operation metadata
+  const [responses] = await client
+    .importData({ name: name, inputConfig: inputConfig });
+
+  const operation = responses[0];
+  console.log('Processing import...');
+  //await listOperationStatus();
+  // const [finalResp] = await operation.promise();
+  // const operationDetails = finalResp[2];
+
+  // // Get the data import details.
+  // console.log('Data import details:');
+  // console.log('\tOperation details:');
+  // console.log(`\t\tName: ${operationDetails.name}`);
+  // console.log(`\t\tDone: ${operationDetails.done}`);
+  return responses;
+
+  // return responses[0];
+  //  return 
+  //     .then(responses => {
+  //       const operation = responses[0];
+  //       console.log('Processing import...');
+  //       return await operation.promise();
+  //     })
+  //     .then(responses => {
+  //       // The final result of the operation.
+  //       const operationDetails = responses[2];
+
+  //       // Get the data import details.
+  //       console.log('Data import details:');
+  //       console.log('\tOperation details:');
+  //       console.log(`\t\tName: ${operationDetails.name}`);
+  //       console.log(`\t\tDone: ${operationDetails.done}`);
+  //     })
+  //     .catch(err => {
+  //       console.error(err);
+  //       return err;
+  //     });
+  // });
 }
 
 /**
  * List all datasets
  */
-app.get('/datasets', async (req, res, next) => {
+app.get("/datasets", async (req, res, next) => {
   try {
-    const authClient = await auth.getClient({ scopes: [AUTOML_API_SCOPE] });
+    const authClient = await googleAuth.getClient();
     const url = `${AUTOML_API_URL}/datasets`;
     const resp = await authClient.request({ url });
     res.json(resp.data);
@@ -125,20 +167,20 @@ app.get('/datasets', async (req, res, next) => {
 /**
  * Endpoint to create a new dataset in automl. Requires a name parameter
  */
-app.post('/datasets', async (req, res, next) => {
+app.post("/datasets", async (req, res, next) => {
   try {
     const { displayName } = req.body;
     if (displayName === undefined) {
-      res.status(400).send('Expected a dataset `displayName`');
+      res.status(400).send("Expected a dataset `displayName`");
       return;
     }
     if (!displayName.match(DATASET_NAME_REGEX)) {
       res
         .status(400)
         .send(
-          'The displayName contains a not allowed character, the' +
-            ' only allowed ones are ASCII Latin letters A-Z and a-z, an underscore (_),' +
-            ' and ASCII digits 0-9'
+          "The displayName contains a not allowed character, the" +
+          " only allowed ones are ASCII Latin letters A-Z and a-z, an underscore (_)," +
+          " and ASCII digits 0-9"
         );
       return;
     }
@@ -147,7 +189,7 @@ app.post('/datasets', async (req, res, next) => {
     res.json(response);
   } catch (err) {
     res.status(500);
-    res.json({message: err.message});
+    res.json({ message: err.message });
     console.error(err);
   }
 });
@@ -155,7 +197,7 @@ app.post('/datasets', async (req, res, next) => {
 /**
  * Endpoint to delete dataset from automl
  */
-app.delete('/datasets/:datasetId', async (req, res, next) => {
+app.delete("/datasets/:datasetId", async (req, res, next) => {
   try {
     const { datasetId } = req.params;
     if (!datasetId) {
@@ -173,7 +215,7 @@ app.delete('/datasets/:datasetId', async (req, res, next) => {
   } catch (err) {
     console.error(err);
     res.status(500);
-    res.json({message: err.message});
+    res.json({ message: err.message });
   }
 });
 
@@ -186,24 +228,24 @@ app.delete('/datasets/:datasetId', async (req, res, next) => {
  *  - labels: string - file name containing the labels information. e.g
  * labels.csv
  */
-app.post('/import', async (req, res, next) => {
+app.post("/import", async (req, res, next) => {
   const { name, labels, datasetId } = req.body;
   if (!name) {
-    res.status(400).json({ error: 'Need a dataset name' });
+    res.status(400).json({ error: "Need a dataset name" });
     return;
   }
   if (!datasetId) {
-    res.status(400).json({ error: 'Need a dataset Id' });
+    res.status(400).json({ error: "Need a dataset Id" });
     return;
   }
   if (!labels) {
-    res.status(400).json({ error: 'Need a path for labels file' });
+    res.status(400).json({ error: "Need a path for labels file" });
     return;
   }
   try {
     const datasetName = await getDatasetName(datasetId);
     if (datasetName === null) {
-      res.status(400).json({ error: 'Dataset not found' });
+      res.status(400).json({ error: "Dataset not found" });
       return;
     }
     const operationMetadata = await importDataset(datasetName, name, labels);
@@ -211,7 +253,7 @@ app.post('/import', async (req, res, next) => {
   } catch (err) {
     console.error(err);
     res.status(500);
-    res.json({message: err.message});
+    res.json({ message: err.message });
   }
 });
 
@@ -227,10 +269,13 @@ app.post('/import', async (req, res, next) => {
  *
  * Uses the rest API
  */
-app.post('/train', async (req, res, next) => {
+app.post("/train", async (req, res, next) => {
+  console.log(
+    `Training function execute`
+  );
   const { datasetId } = req.body;
   if (!datasetId) {
-    res.status(400).json({ error: 'Need a dataset Id' });
+    res.status(400).json({ error: "Need a dataset Id" });
     return;
   }
   let { trainBudget, modelType } = req.body;
@@ -244,31 +289,68 @@ app.post('/train', async (req, res, next) => {
   try {
     const datasetName = await getDatasetName(datasetId);
     if (datasetName === null) {
-      res.status(400).json({ error: 'Dataset not found' });
+      res.status(400).json({ error: "Dataset not found" });
       return;
     }
 
-    const authClient = await auth.getClient({ scopes: [AUTOML_API_SCOPE] });
-    const url = `${AUTOML_API_URL}/models`;
+    // const authClient = await auth.getClient({ scopes: [AUTOML_API_SCOPE] });
+    // const url = `${AUTOML_API_URL}/models`;
 
-    const resp = await authClient.request({
-      method: 'POST',
-      data: {
+    const request = {
+      parent: parent,
+      model: {
         displayName: `${dayjs().format(MODEL_VERSION_FORMAT)}`,
-        dataset_id: datasetId,
-        imageClassificationModelMetadata: { trainBudget, modelType },
+        datasetId: datasetId,
+        imageClassificationModelMetadata: { trainBudget, modelType }, // Leave unset, to use the default base model
       },
-      url,
-    });
+    };
 
-    const operationMetadata = resp.data as OperationMetadata;
-    res.json(operationMetadata);
+    const [operation] = await client.createModel(request);
+    console.log('Training started...');
+    console.log(`Training operation name: ${operation.name}`);
+    console.log(`Training operation metadata: ${operation.metadata}`);
+    res.json(operation);
+    // await listOperationStatus();
+    // const modelId = extractIdFromName(`${dayjs().format(MODEL_VERSION_FORMAT)}`);
+    // console.log(`model id: ${modelId}`);
+    // await deployModel(modelId);
   } catch (err) {
     console.error(err);
     res.status(500);
-    res.json({message: err.message});
+    res.json({ message: err.message });
   }
 });
+
+async function listOperationStatus(): Promise<any> {
+  // Construct request
+  const request = {
+    name: parent,
+    filter: '',
+  };
+
+  const [response] = await client.operationsClient.listOperations(request);
+  console.log('List of operation status:');
+  for (const operation of response) {
+    console.log(`Name: ${operation.name}`);
+    console.log('Operation details:');
+    console.log(`${operation.done}`);
+    console.log(`${operation.metadata.updateTime}`);
+    // manageTraining
+  }
+}
+
+async function deployModel(modelId: string) {
+  // Construct request
+  const request = {
+    name: client.modelPath(PROJECT_ID, LOCATION, modelId),
+  };
+
+  const [operation] = await client.deployModel(request);
+
+  // Wait for operation to complete.
+  const [response] = await operation.promise();
+  console.log(`Model deployment finished. ${response}`);
+}
 
 /**
  * Exports a model in tflite format to a gcspath
@@ -281,28 +363,28 @@ app.post('/train', async (req, res, next) => {
  * more, refer to
  * https://cloud.google.com/vision/automl/alpha/docs/deploy#deployment_on_mobile_models_not_core_ml
  */
-app.post('/export', async (req, res, next) => {
+app.post("/export", async (req, res, next) => {
   const { modelId, gcsPath } = req.body;
   if (!modelId) {
-    res.status(400).send('need a model id: modelId');
+    res.status(400).send("need a model id: modelId");
     return;
   }
   if (!gcsPath) {
-    res.status(400).send('need a gcs path: gcsPath');
+    res.status(400).send("need a gcs path: gcsPath");
     return;
   }
 
-  const authClient = await auth.getClient({ scopes: [AUTOML_API_SCOPE] });
+  const authClient = await googleAuth.getClient();
   const url = `${AUTOML_API_URL}/models/${modelId}:export`;
 
   try {
     const operationMetadata = await authClient
       .request({
-        method: 'POST',
+        method: "POST",
         url,
         data: {
           output_config: {
-            model_format: 'tflite',
+            model_format: "tflite",
             gcs_destination: {
               output_uri_prefix: gcsPath,
             },
@@ -314,21 +396,21 @@ app.post('/export', async (req, res, next) => {
   } catch (err) {
     console.error(err);
     res.status(500);
-    res.json({message: err.message});
+    res.json({ message: err.message });
   }
 });
 
 /**
  * Exports the latest generated model for the dataset
  */
-app.post('/exportlatestmodel', async (req, res, next) => {
+app.post("/exportlatestmodel", async (req, res, next) => {
   const { datasetId, gcsPath } = req.body;
   if (!datasetId) {
-    res.status(400).send('need a dataset id: datasetId');
+    res.status(400).send("need a dataset id: datasetId");
     return;
   }
   if (!gcsPath) {
-    res.status(400).send('need a gcs path: gcsPath');
+    res.status(400).send("need a gcs path: gcsPath");
     return;
   }
 
@@ -340,11 +422,11 @@ app.post('/exportlatestmodel', async (req, res, next) => {
     const datasetModels = modelsResp.model.filter(
       m =>
         m.datasetId === datasetId &&
-        m.imageClassificationModelMetadata.modelType.startsWith('mobile-')
+        m.imageClassificationModelMetadata.modelType.startsWith("mobile-")
     );
 
     if (datasetModels === undefined) {
-      throw new Error('No models found for this dataset');
+      throw new Error("No models found for this dataset");
     }
 
     // 3. Find the latest (based on createTime) model
@@ -354,17 +436,17 @@ app.post('/exportlatestmodel', async (req, res, next) => {
     )[0];
 
     // 3. Initiate its export
-    console.log('Initiating export for the latest model', latestModel);
+    console.log("Initiating export for the latest model", latestModel);
     const modelId = extractIdFromName(latestModel.name);
-    const authClient = await auth.getClient({ scopes: [AUTOML_API_SCOPE] });
+    const authClient = await googleAuth.getClient();
     const url = `${AUTOML_API_URL}/models/${modelId}:export`;
     const operationMetadata = await authClient
       .request({
-        method: 'POST',
+        method: "POST",
         url,
         data: {
           output_config: {
-            model_format: 'tflite',
+            model_format: "tflite",
             gcs_destination: {
               output_uri_prefix: gcsPath,
             },
@@ -376,27 +458,28 @@ app.post('/exportlatestmodel', async (req, res, next) => {
   } catch (err) {
     console.error(err);
     res.status(500);
-    res.json({message: err.message});
+    res.json({ message: err.message });
   }
 });
 
 /**
  * List all models - trying out the REST API
  */
-app.get('/models', async (req, res, next) => {
+app.get("/models", async (req, res, next) => {
   try {
     const resp = await getAllModels();
     res.json(resp.data);
   } catch (err) {
     console.error(err);
     res.status(500);
-    res.json({message: err.message});
+    res.json({ message: err.message });
   }
 });
 
+
 /** Queries all models from AutoML */
 async function getAllModels() {
-  const authClient = await auth.getClient({ scopes: [AUTOML_API_SCOPE] });
+  const authClient = await googleAuth.getClient();
   const url = `${AUTOML_API_URL}/models`;
   return authClient.request({ url });
 }

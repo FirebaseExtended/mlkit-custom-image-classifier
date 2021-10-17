@@ -12,22 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import * as sgMail from '@sendgrid/mail';
-import * as admin from 'firebase-admin';
-import * as functions from 'firebase-functions';
-import { FROM_EMAIL, APP_NAME } from './constants';
+import * as sgMail from "@sendgrid/mail";
+import * as admin from "firebase-admin";
+import * as functions from "firebase-functions";
+import { FROM_EMAIL, APP_NAME } from "./constants";
 
 /**
  * A function to send an email invite to any new collaborator
- * that's added to a dataset
+ * that"s added to a dataset
  */
 export const sendInvite = functions.firestore
-  .document('collaborators/{collaboratorId}')
+  .document("collaborators/{collaboratorId}")
   .onCreate(async (change, context) => {
-    const { email, parent_key: datasetId } = change.data() as any;
+    const { email, parent_key: datasetId } = change.data();
     const datasetSnapshot = await admin
       .firestore()
-      .collection('datasets')
+      .collection("datasets")
       .doc(datasetId)
       .get();
 
@@ -36,10 +36,10 @@ export const sendInvite = functions.firestore
     const msg = {
       to: email,
       from: FROM_EMAIL,
-      subject: `You've been invited to ${APP_NAME}!`,
-      text: `You've been invited to collaborate on a dataset on ${APP_NAME}!`,
+      subject: `You"ve been invited to ${APP_NAME}!`,
+      text: `You"ve been invited to collaborate on a dataset on ${APP_NAME}!`,
       html:
-        `You've been invited to collaborate on the <strong>${datasetName}</strong> dataset` +
+        `You"ve been invited to collaborate on the <strong>${datasetName}</strong> dataset` +
         ` on ${APP_NAME}. Open the app and login to access the dataset.`,
     };
 
@@ -47,7 +47,7 @@ export const sendInvite = functions.firestore
       await sgMail.send(msg);
       console.log(`Sent invite to user: ${email} for dataset: ${datasetName}`);
     } catch (err) {
-      console.error('Unable to send email');
+      console.error("Unable to send email");
       console.error(err);
     }
   });

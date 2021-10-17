@@ -1,14 +1,17 @@
 {
   "compilerOptions": {
+    "lib": ["es2020"],
     "module": "commonjs",
     "noImplicitReturns": true,
-    "noUnusedLocals": true,
     "outDir": "lib",
     "sourceMap": true,
-    "strict": true,
-    "target": "es2015"
+    "target": "es2020"
   },
   "compileOnSave": true,
+//   "rules": {
+//     "no-implicit-dependencies": [true, "dev"],
+   
+// },
   "include": [
     "src"
   ]

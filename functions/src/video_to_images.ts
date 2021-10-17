@@ -12,17 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Storage, Bucket } from '@google-cloud/storage';
-import * as functions from 'firebase-functions';
-import * as path from 'path';
-import * as mkdirp from 'mkdirp';
-import * as ffmpeg from 'fluent-ffmpeg';
-import * as ffmpeg_static from 'ffmpeg-static';
-import * as os from 'os';
-import * as fs from 'fs';
-import * as rimraf from 'rimraf';
-import * as admin from 'firebase-admin';
-import { PROJECT_ID, AUTOML_BUCKET } from './constants';
+import { Storage, Bucket } from "@google-cloud/storage";
+import * as functions from "firebase-functions";
+import * as path from "path";
+import * as mkdirp from "mkdirp";
+import * as ffmpeg from "fluent-ffmpeg";
+import * as ffmpeg_static from "ffmpeg-static";
+import * as os from "os";
+import * as fs from "fs";
+import * as rimraf from "rimraf";
+import * as admin from "firebase-admin";
+import { PROJECT_ID, AUTOML_BUCKET } from "./constants";
 
 interface VideoMetadata {
   uploader: string;
@@ -47,11 +47,11 @@ export const videoToImages = functions.storage
     const filePath = object.name!;
     const fileName = path.basename(filePath);
     const videoMetadata = (object.metadata as unknown) as VideoMetadata;
-    console.log('Video with metadata', videoMetadata);
+    console.log("Video with metadata", videoMetadata);
 
     // Exit if this is triggered on a file that is not an image.
-    if (!filePath.endsWith('mp4')) {
-      console.log('Not a dataset video. Exiting...');
+    if (!filePath.endsWith("mp4")) {
+      console.log("Not a dataset video. Exiting...");
       return;
     }
 
@@ -60,25 +60,25 @@ export const videoToImages = functions.storage
     const tempFilePath = path.join(os.tmpdir(), fileName);
     const videoFile = bucket.file(filePath);
     await videoFile.download({ destination: tempFilePath });
-    console.log('File path', filePath);
-    console.log('Video downloaded locally to', tempFilePath);
+    console.log("File path", filePath);
+    console.log("Video downloaded locally to", tempFilePath);
 
     // Generate images from the video
     const videoTitle = path
       .basename(filePath)
-      .replace(path.extname(filePath), '');
+      .replace(path.extname(filePath), "");
     const imgOutputDir = path.join(os.tmpdir(), `images/${videoTitle}`);
 
-    // create the folder for generating images if it doesn't exist,
-    // so that ffmpeg doesn't fail
+    // create the folder for generating images if it doesn"t exist,
+    // so that ffmpeg doesn"t fail
     if (!fs.existsSync(imgOutputDir)) {
       mkdirp.sync(imgOutputDir);
     }
 
     console.log(`Generating images in ${imgOutputDir}`);
     const command = ffmpeg(tempFilePath)
-      .setFfmpegPath(ffmpeg_static.path)
-      .outputOption('-vf fps=1')
+      .setFfmpegPath(ffmpeg_static)
+      .outputOption("-vf fps=1")
       .output(`${imgOutputDir}/img-%4d.jpg`);
 
     // run the command
@@ -90,11 +90,11 @@ export const videoToImages = functions.storage
 
     // construct upload destination
     const uploadDestination = buildUploadPath(filePath);
-    console.log('Uploading images from video to ', uploadDestination);
+    console.log("Uploading images from video to ", uploadDestination);
 
     // upload generated images to gcs bucket
     // A service-account key is required for signing the URL.
-    const keyFilename = path.join(__dirname, 'service-account-key.json');
+    const keyFilename = path.join(__dirname, "service-account-key.json");
     const autoMlBucket = new Storage({ keyFilename }).bucket(AUTOML_BUCKET);
     await uploadFolderToGCS(
       autoMlBucket,
@@ -103,13 +103,13 @@ export const videoToImages = functions.storage
       videoMetadata,
       videoTitle
     );
-    console.log('Upload completed.. Proceeding to deletion');
+    console.log("Upload completed.. Proceeding to deletion");
 
     // delete the video locally (& GCS) along with the files generated
     await videoFile.delete();
     fs.unlinkSync(tempFilePath);
     rimraf.sync(imgOutputDir);
-    console.log('Conversion completed');
+    console.log("Conversion completed");
   });
 
 /**
@@ -120,9 +120,9 @@ export const videoToImages = functions.storage
 function buildUploadPath(videoPath: string): string {
   const parts = videoPath.split(path.sep);
   if (parts.length < 4) {
-    throw new Error('too few parts in path' + videoPath);
+    throw new Error("too few parts in path" + videoPath);
   }
-  return path.join('datasets', parts[1] /** dataset */, parts[2] /** label */);
+  return path.join("datasets", parts[1] /** dataset */, parts[2] /** label */);
 }
 
 /**
@@ -131,8 +131,8 @@ function buildUploadPath(videoPath: string): string {
 function promisifyCommand(command: ffmpeg.FfmpegCommand): Promise<any> {
   return new Promise((resolve, reject) => {
     command
-      .on('end', resolve)
-      .on('error', reject)
+      .on("end", resolve)
+      .on("error", reject)
       .run();
   });
 }
@@ -156,7 +156,7 @@ async function uploadFolderToGCS(
   videoTitle: string
 ) {
   console.log(`Uploading to gs://${bucket.name}/${destination}`);
-  const imagesCollectionRef = await admin.firestore().collection('images');
+  const imagesCollectionRef = await admin.firestore().collection("images");
 
   const { uploader, dataset_parent_key, parent_key } = videoMetadata;
   const neverExpireTs = new Date(2050, 1, 1).getTime();
@@ -174,11 +174,11 @@ async function uploadFolderToGCS(
       // get a signed url
       const [signedUrl] = await bucket
         .file(fileDest)
-        .getSignedUrl({ action: 'read', expires: neverExpireTs });
+        .getSignedUrl({ action: "read", expires: neverExpireTs });
 
       // and add it in firestore
       await imagesCollectionRef.doc().set({
-        type: 'TRAIN',
+        type: "TRAIN",
         filename: filename,
         parent_key: parent_key,
         uploader: uploader,
@@ -201,15 +201,17 @@ async function uploadFolderToGCS(
   // Update the total count in Firestore
   const labelSnapshot = await admin
     .firestore()
-    .collection('labels')
+    .collection("labels")
     .doc(parent_key);
 
   return admin.firestore().runTransaction(transaction => {
     return transaction.get(labelSnapshot).then(labelRef => {
-      const { total_images } = labelRef.data() as any;
+      const { total_images } = labelRef.data();
       transaction.update(labelSnapshot, {
         total_images: total_images + uploadPromises.length,
       });
+      return;
     });
+   
   });
 }

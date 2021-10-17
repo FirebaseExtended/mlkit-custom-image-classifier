@@ -25,7 +25,7 @@ export const deleteDataset = functions.firestore
   .document('datasets/{datasetId}')
   .onDelete(async (snap, context) => {
     const { datasetId } = context.params;
-    const { name, automlId } = snap.data() as any;
+    const { name, automlId } = snap.data();
 
     console.log(`Attempting to delete dataset: ${name} with id: ${datasetId}`);
 
@@ -118,7 +118,7 @@ export const deleteDataset = functions.firestore
 export const deleteLabel = functions.firestore
   .document('labels/{labelId}')
   .onDelete(async (snap, context) => {
-    const { name } = snap.data() as any;
+    const { name } = snap.data();
     const { labelId } = context.params;
     console.log(`Attempting to delete label: ${name}`);
     await deleteImagesForLabels(labelId);
@@ -138,7 +138,7 @@ function deleteQueryBatch(
   db: admin.firestore.Firestore,
   query: FirebaseFirestore.Query,
   batchSize: number,
-  resolve: () => void,
+  resolve:(unknown) => void,
   reject: () => void
 ) {
   query
@@ -161,7 +161,7 @@ function deleteQueryBatch(
     })
     .then(numDeleted => {
       if (numDeleted === 0) {
-        resolve();
+        resolve.call;
         return;
       }
 
@@ -170,6 +170,7 @@ function deleteQueryBatch(
       process.nextTick(() => {
         deleteQueryBatch(db, query, batchSize, resolve, reject);
       });
+      return;
     })
     .catch(reject);
 }
