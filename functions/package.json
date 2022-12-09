@@ -20,7 +20,7 @@
     "@sendgrid/mail": "^6.3.1",
     "child-process-promise": "^2.2.1",
     "dayjs": "^1.8.0",
-    "express": "^4.16.4",
+    "express": "^4.17.3",
     "ffmpeg-static": "^2.4.0",
     "firebase-admin": "~7.0.0",
     "firebase-functions": "^2.3.0",
