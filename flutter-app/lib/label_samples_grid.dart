@@ -65,19 +65,51 @@ class ListLabelSamples extends StatelessWidget {
           preferredSize: new AppBar().preferredSize,
         ),
         floatingActionButton: model.isLoggedIn()
-            ? new FloatingActionButton.extended(
-                icon: const Icon(Icons.add_a_photo),
-                label: const Text('Add Images'),
-                onPressed: () async {
-                  final c = Camera(dataset, labelName, labelKey, model);
-                  await c.init();
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => c,
+            ? Align(
+                alignment: Alignment.bottomRight,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    new FloatingActionButton.extended(
+                      icon: const Icon(Icons.add_a_photo),
+                      heroTag: 1,
+                      label: const Text('Add Images'),
+                      onPressed: () async {
+                        final c =
+                            Camera(dataset, labelName, labelKey, model, false);
+                        await c.init();
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => c,
+                          ),
+                        );
+                      },
                     ),
-                  );
-                },
+                    Padding(
+                      padding: const EdgeInsets.all(4.0),
+                    ),
+                    new FloatingActionButton.extended(
+                      icon: const Icon(Icons.file_upload),
+                      heroTag: 2,
+                      label: const Text('Upload Images'),
+                      onPressed: () async {
+                        final c =
+                            Camera(dataset, labelName, labelKey, model, true);
+                        await c.init();
+                        if (c.resultList != null && c.resultList.isNotEmpty) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => c,
+                            ),
+                          );
+                        }
+                      },
+                    ),
+                  ],
+                ),
               )
             : Container(),
         // body of the screen

@@ -20,6 +20,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:multi_media_picker/multi_media_picker.dart';
 
 import 'countdown_timer.dart';
 import 'models.dart';
@@ -38,14 +39,21 @@ class Camera extends StatefulWidget {
   final String label;
   final String labelKey;
   final UserModel userModel;
-
-  Camera(this.dataset, this.label, this.labelKey, this.userModel);
+  final bool isUploading;
+  List<File> resultList;
+  Camera(this.dataset, this.label, this.labelKey, this.userModel,
+      this.isUploading);
 
   Future init() async {
-    try {
-      cameras = await availableCameras();
-    } on CameraException catch (e) {
-      logError(e.code, e.description);
+    if (!isUploading) {
+      try {
+        cameras = await availableCameras();
+      } on CameraException catch (e) {
+        logError(e.code, e.description);
+      }
+    } else {
+      resultList =
+          await MultiMediaPicker.pickImages(source: ImageSource.gallery);
     }
   }
 
@@ -67,12 +75,14 @@ class _CameraState extends State<Camera> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      for (CameraDescription cameraDescription in cameras) {
-        if (cameraDescription.lensDirection == CameraLensDirection.back)
-          onNewCameraSelected(cameraDescription);
-      }
-    });
+    if (!widget.isUploading) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        for (CameraDescription cameraDescription in cameras) {
+          if (cameraDescription.lensDirection == CameraLensDirection.back)
+            onNewCameraSelected(cameraDescription);
+        }
+      });
+    }
   }
 
   @override
@@ -83,53 +93,73 @@ class _CameraState extends State<Camera> {
 
   @override
   Widget build(BuildContext context) {
+    if (widget.isUploading && widget.resultList != null) {
+      widget.resultList
+          .forEach((eachImage) => {uploadImageToStorage(eachImage.path)});
+    }
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
         title: Text('Capture sample for ${widget.label}'),
       ),
-      body: Container(
-        decoration: new BoxDecoration(color: Colors.black),
-        child: Column(
-          children: <Widget>[
-            Expanded(
-              child: Container(
-                child: Padding(
-                  padding: const EdgeInsets.all(1.0),
-                  child: Center(
-                    child: _cameraPreviewWidget(),
-                  ),
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.black,
-                  border: Border.all(
-                    color:
-                        controller != null && controller.value.isRecordingVideo
-                            ? Colors.redAccent
-                            : Colors.black45,
-                    width: 2.0,
-                  ),
-                ),
-              ),
-            ),
-            new CameraControlWidget(
-              controller: controller,
-              onRecordingStart: onVideoRecordButtonPressed,
-              onRecordingStop: onStopButtonPressed,
-              onPictureTaken: onTakePictureButtonPressed,
-            ),
-            Padding(
-              padding: const EdgeInsets.all(5.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
+      body: widget.isUploading
+          ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
-                  _thumbnailWidget(),
+                  Text('Uploading Images in the background'),
+                  MaterialButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: Text('OK'),
+                  )
+                ],
+              ),
+            )
+          : Container(
+              decoration: new BoxDecoration(color: Colors.black),
+              child: Column(
+                children: <Widget>[
+                  Expanded(
+                    child: Container(
+                      child: Padding(
+                        padding: const EdgeInsets.all(1.0),
+                        child: Center(
+                          child: _cameraPreviewWidget(),
+                        ),
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.black,
+                        border: Border.all(
+                          color: controller != null &&
+                                  controller.value.isRecordingVideo
+                              ? Colors.redAccent
+                              : Colors.black45,
+                          width: 2.0,
+                        ),
+                      ),
+                    ),
+                  ),
+                  new CameraControlWidget(
+                    controller: controller,
+                    onRecordingStart: onVideoRecordButtonPressed,
+                    onRecordingStop: onStopButtonPressed,
+                    onPictureTaken: onTakePictureButtonPressed,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(5.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: <Widget>[
+                        _thumbnailWidget(),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),
-          ],
-        ),
-      ),
     );
   }
 
@@ -199,60 +229,7 @@ class _CameraState extends State<Camera> {
 
   void onTakePictureButtonPressed() async {
     final filePath = await takePicture();
-    final automlStorage = InheritedStorage.of(context).autoMlStorage;
-
-    if (mounted) {
-      setState(() {
-        imagePath = filePath;
-      });
-
-      final filename =
-          new DateTime.now().millisecondsSinceEpoch.toString() + '.jpg';
-
-      // upload to storage and firestore
-      final StorageReference ref = automlStorage
-          .ref()
-          .child('datasets')
-          .child(widget.dataset.name)
-          .child(widget.label)
-          .child(filename);
-
-      final File file = File(filePath).absolute;
-      // upload the file
-      StorageUploadTask uploadTask = ref.putFile(
-        file,
-        StorageMetadata(
-          contentType: 'image/jpeg',
-          customMetadata: <String, String>{'activity': 'imgUpload'},
-        ),
-      );
-
-      final snapshot = await uploadTask.onComplete;
-      final downloadUrl = await snapshot.ref.getDownloadURL();
-
-      Firestore.instance.collection('images').add({
-        'parent_key': widget.labelKey,
-        'dataset_parent_key': widget.dataset.id,
-        'type': toString(SampleType
-            .TRAIN), // newly created images are categorized as training.
-        'filename': filename,
-        'uploadPath':
-            'datasets/${widget.dataset.name}/${widget.label}/$filename',
-        'gcsURI': downloadUrl,
-        'uploader': widget.userModel.user.email,
-      });
-
-      final labelRef =
-          Firestore.instance.collection('labels').document(widget.labelKey);
-
-      // increment count for the label
-      await Firestore.instance.runTransaction((Transaction tx) async {
-        DocumentSnapshot snapshot = await tx.get(labelRef);
-        await tx.update(labelRef, <String, dynamic>{
-          'total_images': snapshot.data['total_images'] + 1
-        });
-      });
-    }
+    uploadImageToStorage(filePath);
   }
 
   void onVideoRecordButtonPressed() {
@@ -373,6 +350,63 @@ class _CameraState extends State<Camera> {
   void _showCameraException(CameraException e) {
     logError(e.code, e.description);
     showInSnackBar('Error: ${e.code}\n${e.description}');
+  }
+
+  void uploadImageToStorage(String filePath) async {
+    final automlStorage = InheritedStorage.of(context).autoMlStorage;
+
+    if (mounted) {
+      setState(() {
+        imagePath = filePath;
+      });
+
+      final filename =
+          new DateTime.now().millisecondsSinceEpoch.toString() + '.jpg';
+
+      // upload to storage and firestore
+      final StorageReference ref = automlStorage
+          .ref()
+          .child('datasets')
+          .child(widget.dataset.name)
+          .child(widget.label)
+          .child(filename);
+
+      final File file = File(filePath).absolute;
+      // upload the file
+      StorageUploadTask uploadTask = ref.putFile(
+        file,
+        StorageMetadata(
+          contentType: 'image/jpeg',
+          customMetadata: <String, String>{'activity': 'imgUpload'},
+        ),
+      );
+
+      final snapshot = await uploadTask.onComplete;
+      final downloadUrl = await snapshot.ref.getDownloadURL();
+
+      Firestore.instance.collection('images').add({
+        'parent_key': widget.labelKey,
+        'dataset_parent_key': widget.dataset.id,
+        'type': toString(SampleType
+            .TRAIN), // newly created images are categorized as training.
+        'filename': filename,
+        'uploadPath':
+            'datasets/${widget.dataset.name}/${widget.label}/$filename',
+        'gcsURI': downloadUrl,
+        'uploader': widget.userModel.user.email,
+      });
+
+      final labelRef =
+          Firestore.instance.collection('labels').document(widget.labelKey);
+
+      // increment count for the label
+      await Firestore.instance.runTransaction((Transaction tx) async {
+        DocumentSnapshot snapshot = await tx.get(labelRef);
+        await tx.update(labelRef, <String, dynamic>{
+          'total_images': snapshot.data['total_images'] + 1
+        });
+      });
+    }
   }
 }
 
