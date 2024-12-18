@@ -22,7 +22,7 @@
     "dayjs": "^1.8.0",
     "express": "^4.16.4",
     "ffmpeg-static": "^2.4.0",
-    "firebase-admin": "~7.0.0",
+    "firebase-admin": "~13.0.1",
     "firebase-functions": "^2.3.0",
     "firebase-tools": "^6.7.1",
     "fluent-ffmpeg": "^2.1.2",
